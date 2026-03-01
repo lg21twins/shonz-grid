@@ -217,6 +217,11 @@ export default function Home() {
                   className="w-[3px] h-6 rounded-sm shrink-0"
                   style={{ background: TEAM_COLORS[d.teamId] }}
                 />
+                <img
+                  src={d.imageUrl}
+                  alt={d.name}
+                  className="w-8 h-8 rounded-full object-cover shrink-0 bg-bg2"
+                />
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-semibold text-t1 mb-px">{d.name}</p>
                   <p className="text-[12px] text-t3">{d.team}</p>
@@ -242,6 +247,11 @@ export default function Home() {
                 <div
                   className="w-[3px] h-[18px] rounded-sm shrink-0"
                   style={{ background: TEAM_COLORS[c.teamId] }}
+                />
+                <img
+                  src={c.logoUrl}
+                  alt={c.name}
+                  className="w-8 h-8 rounded-[6px] object-contain shrink-0 bg-bg2 p-0.5"
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-semibold text-t1">{c.name}</p>

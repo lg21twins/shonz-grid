@@ -10,10 +10,29 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SHONZ GRID — 한국어 F1 뉴스",
+  title: {
+    default: "SHONZ GRID — 한국어 F1 뉴스",
+    template: "%s | SHONZ GRID",
+  },
   description:
     "한국 F1 팬을 위한 한국어 뉴스. 데일리 브리핑, 기술 해설, 순위, 캘린더까지.",
-  keywords: ["F1", "포뮬러원", "한국어", "뉴스", "순위", "캘린더"],
+  keywords: ["F1", "포뮬러원", "한국어", "뉴스", "순위", "캘린더", "Formula 1", "2026"],
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: "SHONZ GRID",
+    title: "SHONZ GRID — 한국어 F1 뉴스",
+    description: "한국 F1 팬을 위한 한국어 뉴스. 데일리 브리핑, 기술 해설, 순위, 캘린더까지.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SHONZ GRID — 한국어 F1 뉴스",
+    description: "한국 F1 팬을 위한 한국어 뉴스.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {

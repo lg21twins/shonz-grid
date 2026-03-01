@@ -1,13 +1,15 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
 import { Footer } from "@/components/layout/Footer";
+import {
+  getArticleBySlug,
+  getArticleBlocks,
+  type ArticleBlock,
+} from "@/lib/notion";
 
-/* ── placeholder article data (will be replaced by Notion CMS) ── */
-const ARTICLES: Record<
+/* ── Dummy fallback articles ── */
+const DUMMY_ARTICLES: Record<
   string,
   {
     category: string;
@@ -15,7 +17,7 @@ const ARTICLES: Record<
     desc: string;
     source: string;
     date: string;
-    gradient: string;
+    thumbnail: string;
     body: string[];
     related: { slug: string; title: string; cat: string; time: string }[];
   }
@@ -26,7 +28,7 @@ const ARTICLES: Record<
     desc: "FIA가 2026 시즌 프리시즌 테스트 일정을 공식 발표. 새 레귤레이션 첫 주행이 시작된다.",
     source: "SHONZ GRID",
     date: "2026년 3월 1일",
-    gradient: "from-[#1a1a2e] to-[#e94560]",
+    thumbnail: "",
     body: [
       "FIA는 오늘 2026 시즌 프리시즌 테스트가 바레인 사키르 인터내셔널 서킷에서 3일간 진행될 것이라고 공식 발표했다.",
       "새로운 레귤레이션이 적용되는 첫 시즌인 만큼, 이번 테스트는 11개 팀 모두에게 중요한 의미를 갖는다. 특히 액티브 에어로다이나믹스와 강화된 전기 파워유닛이 실전에서 어떤 성능을 보여줄지에 대한 첫 번째 힌트가 될 것이다.",
@@ -42,68 +44,188 @@ const ARTICLES: Record<
   },
 };
 
-/* fallback for unknown slugs */
-const FALLBACK = {
+const FALLBACK_ARTICLE = {
   category: "뉴스",
-  title: "기사를 불러오는 중...",
-  desc: "잠시 후 다시 시도해 주세요.",
+  title: "기사를 찾을 수 없습니다",
+  desc: "요청하신 기사가 존재하지 않거나 아직 준비 중입니다.",
   source: "SHONZ GRID",
   date: "",
-  gradient: "from-[#333] to-[#555]",
-  body: ["이 기사는 아직 준비 중입니다. Notion CMS 연동 후 실제 콘텐츠가 표시됩니다."],
+  thumbnail: "",
+  body: ["Notion CMS 연동 후 실제 콘텐츠가 표시됩니다."],
   related: [] as { slug: string; title: string; cat: string; time: string }[],
 };
 
-export default function ArticlePage({
+/* ── Block renderer ── */
+function BlockRenderer({ block }: { block: ArticleBlock }) {
+  switch (block.type) {
+    case "paragraph":
+      return block.text ? (
+        <p className="text-[15px] max-md:text-[14px] text-t1 leading-[1.75]">
+          {block.text}
+        </p>
+      ) : null;
+    case "heading_1":
+      return (
+        <h2 className="text-[20px] font-extrabold text-t1 mt-4">
+          {block.text}
+        </h2>
+      );
+    case "heading_2":
+      return (
+        <h3 className="text-[18px] font-bold text-t1 mt-3">{block.text}</h3>
+      );
+    case "heading_3":
+      return (
+        <h4 className="text-[16px] font-bold text-t1 mt-2">{block.text}</h4>
+      );
+    case "bulleted_list_item":
+      return (
+        <li className="text-[15px] max-md:text-[14px] text-t1 leading-[1.75] ml-5 list-disc">
+          {block.text}
+        </li>
+      );
+    case "numbered_list_item":
+      return (
+        <li className="text-[15px] max-md:text-[14px] text-t1 leading-[1.75] ml-5 list-decimal">
+          {block.text}
+        </li>
+      );
+    case "quote":
+      return (
+        <blockquote className="border-l-[3px] border-t3 pl-4 text-[15px] text-t2 leading-[1.6] italic">
+          {block.text}
+        </blockquote>
+      );
+    case "image":
+      return (
+        <figure>
+          <img
+            src={block.url}
+            alt={block.caption ?? ""}
+            className="w-full rounded-[12px]"
+          />
+          {block.caption && (
+            <figcaption className="text-[12px] text-t3 text-center mt-2">
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    case "divider":
+      return <hr className="border-bdr my-2" />;
+    default:
+      return null;
+  }
+}
+
+export const revalidate = 300;
+
+export default async function ArticlePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = use(params);
-  const article = ARTICLES[slug] ?? FALLBACK;
+  const { slug } = await params;
+
+  // Try Notion first
+  const notionArticle = await getArticleBySlug(slug);
+
+  if (notionArticle) {
+    const blocks = await getArticleBlocks(notionArticle.id);
+
+    return (
+      <div className="min-h-screen bg-bg2">
+        <Navbar />
+        <main className="mx-auto max-w-[720px] px-5 max-md:px-3.5 pt-5 max-md:pt-3.5 pb-20 md:pb-5 flex flex-col gap-3 max-md:gap-2.5">
+          <Link
+            href="/news"
+            className="inline-flex items-center gap-1 text-[13px] font-semibold text-t3 hover:text-t1 transition-colors w-fit"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+            뉴스 목록
+          </Link>
+
+          {notionArticle.thumbnail ? (
+            <img
+              src={notionArticle.thumbnail}
+              alt={notionArticle.title}
+              className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] object-cover"
+            />
+          ) : (
+            <div className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] bg-gradient-to-br from-[#333] to-[#555]" />
+          )}
+
+          <article className="bg-card rounded-[16px] max-md:rounded-[14px] p-6 max-md:p-4">
+            <span className="inline-block text-[11px] font-bold px-2.5 py-[3px] rounded-[6px] bg-f1-red-bg text-f1-red mb-3">
+              {notionArticle.category}
+            </span>
+            <h1 className="text-[22px] max-md:text-[19px] font-extrabold text-t1 leading-[1.35] mb-2">
+              {notionArticle.title}
+            </h1>
+            <p className="text-[13px] text-t3 mb-6">
+              {notionArticle.source} · {notionArticle.date}
+            </p>
+            {notionArticle.description && (
+              <div className="border-l-[3px] border-f1-red pl-4 mb-6">
+                <p className="text-[15px] max-md:text-[14px] text-t2 leading-[1.6] font-medium">
+                  {notionArticle.description}
+                </p>
+              </div>
+            )}
+            <div className="flex flex-col gap-4">
+              {blocks.map((block) => (
+                <BlockRenderer key={block.id} block={block} />
+              ))}
+            </div>
+          </article>
+
+          <Footer />
+        </main>
+        <TabBar />
+      </div>
+    );
+  }
+
+  // Fallback to dummy data
+  const article = DUMMY_ARTICLES[slug] ?? FALLBACK_ARTICLE;
 
   return (
     <div className="min-h-screen bg-bg2">
       <Navbar />
-
       <main className="mx-auto max-w-[720px] px-5 max-md:px-3.5 pt-5 max-md:pt-3.5 pb-20 md:pb-5 flex flex-col gap-3 max-md:gap-2.5">
-        {/* Back */}
         <Link
           href="/news"
           className="inline-flex items-center gap-1 text-[13px] font-semibold text-t3 hover:text-t1 transition-colors w-fit"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
           뉴스 목록
         </Link>
 
-        {/* Hero Image */}
-        <div className={`w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] bg-gradient-to-br ${article.gradient}`} />
+        {article.thumbnail ? (
+          <img
+            src={article.thumbnail}
+            alt={article.title}
+            className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] object-cover"
+          />
+        ) : (
+          <div className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] bg-gradient-to-br from-[#333] to-[#555]" />
+        )}
 
-        {/* Article Card */}
         <article className="bg-card rounded-[16px] max-md:rounded-[14px] p-6 max-md:p-4">
-          {/* Category badge */}
           <span className="inline-block text-[11px] font-bold px-2.5 py-[3px] rounded-[6px] bg-f1-red-bg text-f1-red mb-3">
             {article.category}
           </span>
-
-          {/* Title */}
           <h1 className="text-[22px] max-md:text-[19px] font-extrabold text-t1 leading-[1.35] mb-2">
             {article.title}
           </h1>
-
-          {/* Meta */}
           <p className="text-[13px] text-t3 mb-6">
             {article.source} · {article.date}
           </p>
-
-          {/* Description highlight */}
           <div className="border-l-[3px] border-f1-red pl-4 mb-6">
             <p className="text-[15px] max-md:text-[14px] text-t2 leading-[1.6] font-medium">
               {article.desc}
             </p>
           </div>
-
-          {/* Body */}
           <div className="flex flex-col gap-4">
             {article.body.map((paragraph, i) => (
               <p
@@ -116,7 +238,6 @@ export default function ArticlePage({
           </div>
         </article>
 
-        {/* Related Articles */}
         {article.related.length > 0 && (
           <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
             <p className="text-[15px] font-bold text-t2 mb-4">관련 기사</p>
@@ -134,7 +255,7 @@ export default function ArticlePage({
                     {r.title}
                   </p>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-t4 shrink-0"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-t4 shrink-0"><polyline points="9 18 15 12 9 6" /></svg>
               </Link>
             ))}
           </section>
@@ -142,7 +263,6 @@ export default function ArticlePage({
 
         <Footer />
       </main>
-
       <TabBar />
     </div>
   );
