@@ -1,26 +1,118 @@
+/* ===== SUIT Variable Font ===== */
+@import url("https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css");
+
 @import "tailwindcss";
 
+/* ===== Design Tokens: Light (Default) ===== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --bg2: #f2f4f6;
+  --card: #ffffff;
+  --bdr: #e8e8e8;
+  --bdr2: #e0e0e0;
+  --t1: #191f28;
+  --t2: #4e5968;
+  --t3: #8b95a1;
+  --t4: #b0b8c1;
+  --t5: #d1d6db;
+  --red: #e10600;
+  --red-bg: rgba(225, 6, 0, 0.06);
+  --blue: #3182f6;
+  --green: #34c759;
+  --amber: #f5a623;
+  --nav-bg: rgba(242, 244, 246, 0.88);
+  --nav-bdr: #e8e8e8;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow2: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* ===== Design Tokens: Dark ===== */
+[data-theme="dark"] {
+  --bg: #0e0e10;
+  --bg2: #0e0e10;
+  --card: #1c1c1e;
+  --bdr: #2c2c2e;
+  --bdr2: #333339;
+  --t1: #f0f0f4;
+  --t2: #a1a1a6;
+  --t3: #6e6e73;
+  --t4: #48484a;
+  --t5: #333336;
+  --red: #ff3b30;
+  --red-bg: rgba(255, 59, 48, 0.12);
+  --blue: #3182f6;
+  --green: #34c759;
+  --amber: #f5a623;
+  --nav-bg: rgba(14, 14, 16, 0.88);
+  --nav-bdr: #2c2c2e;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow2: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Tailwind Theme ===== */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-bg: var(--bg);
+  --color-bg2: var(--bg2);
+  --color-card: var(--card);
+  --color-bdr: var(--bdr);
+  --color-bdr2: var(--bdr2);
+  --color-t1: var(--t1);
+  --color-t2: var(--t2);
+  --color-t3: var(--t3);
+  --color-t4: var(--t4);
+  --color-t5: var(--t5);
+  --color-f1-red: var(--red);
+  --color-f1-red-bg: var(--red-bg);
+  --color-f1-blue: var(--blue);
+  --color-f1-green: var(--green);
+  --color-f1-amber: var(--amber);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-bdr: var(--nav-bdr);
+
+  /* Team Colors */
+  --color-team-mclaren: #ff8000;
+  --color-team-ferrari: #dc0000;
+  --color-team-redbull: #3671c6;
+  --color-team-mercedes: #27f4d2;
+  --color-team-aston: #229971;
+  --color-team-alpine: #ff87bc;
+  --color-team-haas: #b6babd;
+  --color-team-rb: #6692ff;
+  --color-team-williams: #64c4ff;
+  --color-team-audi: #c0c0c0;
+  --color-team-cadillac: #1f3d2c;
+
+  /* Fonts */
+  --font-sans: "SUIT Variable", "SUIT", "Inter", sans-serif;
+  --font-display: "Inter", "SUIT Variable", sans-serif;
+
+  /* Shadows */
+  --shadow-card: var(--shadow);
+  --shadow-card-hover: var(--shadow2);
+
+  /* Border Radius */
+  --radius-card: 16px;
+  --radius-input: 12px;
+  --radius-tag: 8px;
+  --radius-img: 12px;
+  --radius-thumb: 8px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ===== Base Styles ===== */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+  font-family: "SUIT Variable", "SUIT", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
