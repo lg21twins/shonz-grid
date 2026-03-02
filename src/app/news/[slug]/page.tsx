@@ -187,6 +187,7 @@ export default async function ArticlePage({
             <div className="mt-8 pt-5 border-t border-bdr">
               <p className="text-[12px] text-t4 leading-[1.6]">
                 이 기사는 {notionArticle.source}의 원문을 바탕으로 AI가 한국어로 번역·요약한 것입니다.
+                <br />
                 기사 내 이미지의 저작권은 원 저작권자에게 있습니다.
               </p>
               {notionArticle.sourceUrl && (
