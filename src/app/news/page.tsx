@@ -75,24 +75,25 @@ export default async function NewsPage() {
     articles: gpArticles,
   };
 
-  if (articles.length > 0) {
+  if (articles.length > 1) {
+    // Use second article as featured (home page uses the first)
     const featured = {
-      slug: articles[0].slug,
-      category: articles[0].category,
-      title: articles[0].title,
-      description: articles[0].description,
-      source: articles[0].source,
-      time: articles[0].date,
-      thumbnail: articles[0].thumbnail,
+      slug: articles[1].slug,
+      category: articles[1].category,
+      title: articles[1].title,
+      description: articles[1].description,
+      source: articles[1].source,
+      time: articles[1].date,
+      thumbnail: articles[1].thumbnail,
     };
-    const editorPicks = articles.slice(1, 5).map((a) => ({
+    const editorPicks = articles.slice(2, 6).map((a) => ({
       slug: a.slug,
       cat: a.category,
       title: a.title,
       meta: `${a.date} · ${a.source}`,
       thumbnail: a.thumbnail,
     }));
-    const newsItems = articles.slice(1).map(articleToNewsItem);
+    const newsItems = [articles[0], ...articles.slice(2)].map(articleToNewsItem);
 
     return (
       <NewsPageClient
