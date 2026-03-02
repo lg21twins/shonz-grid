@@ -22,7 +22,7 @@ export function Navbar() {
           <Logo className="h-[14px] w-auto text-t1" />
         </Link>
 
-        {/* Desktop nav links */}
+        {/* Desktop nav links + Instagram */}
         <div className="hidden md:flex items-center gap-6">
           {NAV_LINKS.map((link) => {
             const isActive =
@@ -43,7 +43,35 @@ export function Navbar() {
               </Link>
             );
           })}
+          <a
+            href="https://instagram.com/ahonz_mag"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-t3 hover:text-t1 transition-colors"
+            aria-label="Instagram"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" />
+              <circle cx="12" cy="12" r="5" />
+              <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
+            </svg>
+          </a>
         </div>
+
+        {/* Mobile Instagram icon */}
+        <a
+          href="https://instagram.com/ahonz_mag"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="md:hidden text-t3 hover:text-t1 transition-colors"
+          aria-label="Instagram"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" />
+            <circle cx="12" cy="12" r="5" />
+            <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
+          </svg>
+        </a>
       </div>
     </nav>
   );

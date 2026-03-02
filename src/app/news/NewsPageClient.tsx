@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
 import { Footer } from "@/components/layout/Footer";
 import { NextGPArticles } from "@/components/news/NextGPArticles";
+import { useScrollRestore } from "@/hooks/useScrollRestore";
 
 /* ── Types ── */
 export type NewsItem = {
@@ -67,24 +68,10 @@ interface Props {
   };
 }
 
-const SCROLL_KEY = "news-scroll";
-
 export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Props) {
   const [activeCat, setActiveCat] = useState<Category>("all");
   const [search, setSearch] = useState("");
-
-  // Restore scroll position when returning from article
-  useEffect(() => {
-    const saved = sessionStorage.getItem(SCROLL_KEY);
-    if (saved) {
-      window.scrollTo(0, parseInt(saved, 10));
-      sessionStorage.removeItem(SCROLL_KEY);
-    }
-  }, []);
-
-  function saveScroll() {
-    sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
-  }
+  const saveScroll = useScrollRestore("news-scroll");
 
   const filtered = newsItems
     .filter((n) => activeCat === "all" || n.cat === activeCat)

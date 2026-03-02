@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
 import { Footer } from "@/components/layout/Footer";
 import { NextGPArticles } from "@/components/news/NextGPArticles";
+import { useScrollRestore } from "@/hooks/useScrollRestore";
 import type { Driver, Constructor, RaceSession } from "@/data/f1-2026";
 
 /* ── Types ── */
@@ -74,19 +75,7 @@ export function HomeClient({
   teamColors,
 }: Props) {
   const [rankTab, setRankTab] = useState<RankTab>("drivers");
-
-  // Restore scroll position when returning from article
-  useEffect(() => {
-    const saved = sessionStorage.getItem("home-scroll");
-    if (saved) {
-      window.scrollTo(0, parseInt(saved, 10));
-      sessionStorage.removeItem("home-scroll");
-    }
-  }, []);
-
-  function saveScroll() {
-    sessionStorage.setItem("home-scroll", String(window.scrollY));
-  }
+  const saveScroll = useScrollRestore("home-scroll");
 
   function posClass(pos: number) {
     if (pos === 1) return "text-f1-red";
