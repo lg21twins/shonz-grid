@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
 import { Footer } from "@/components/layout/Footer";
+import { NextGPArticles } from "@/components/news/NextGPArticles";
 
 /* ── Types ── */
 export type NewsItem = {
@@ -58,9 +59,15 @@ interface Props {
     thumbnail: string;
   }[];
   newsItems: NewsItem[];
+  gpData: {
+    flag: string;
+    gp: string;
+    fullDate: string;
+    articles: { slug: string; title: string; source: string; date: string; thumbnail: string }[];
+  };
 }
 
-export function NewsPageClient({ featured, editorPicks, newsItems }: Props) {
+export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Props) {
   const [activeCat, setActiveCat] = useState<Category>("all");
   const [search, setSearch] = useState("");
 
@@ -106,6 +113,9 @@ export function NewsPageClient({ featured, editorPicks, newsItems }: Props) {
             </div>
           </section>
         </Link>
+
+        {/* GP ARTICLE COLLECTION */}
+        <NextGPArticles {...gpData} />
 
         {/* 2. EDITOR'S PICK */}
         <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">

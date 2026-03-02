@@ -1,4 +1,6 @@
-import { getArticles, type Article } from "@/lib/notion";
+import { getArticles, getArticlesByKeywords, type Article } from "@/lib/notion";
+import { getNextRace } from "@/data/f1-2026";
+import { RACE_KEYWORDS } from "@/data/race-keywords";
 import { NewsPageClient, type NewsItem } from "./NewsPageClient";
 
 /* ── Dummy fallback data (used when Notion is not configured) ── */
@@ -25,8 +27,6 @@ const DUMMY_NEWS: NewsItem[] = [
   { slug: "norris-defending-champion", cat: "driver", catLabel: "드라이버 & 팀", title: "노리스, 챔피언의 첫 시즌 각오", desc: "맥라렌 란도 노리스 디펜딩", time: "10시간 전", source: "Motorsport.com", thumbnail: "" },
   { slug: "cadillac-f1-first-season", cat: "daily", catLabel: "데일리 브리핑", title: "카딜락 F1, 첫 시즌 목표는 '학습'", desc: "11번째 팀 합류 카딜락", time: "1일 전", source: "Autosport", thumbnail: "" },
   { slug: "pirelli-2026-compound", cat: "daily", catLabel: "데일리 브리핑", title: "피렐리, 2026 타이어 컴파운드 변경", desc: "새 규정 맞춤 타이어 라인업", time: "1일 전", source: "RaceFans", thumbnail: "" },
-  { slug: "bahrain-gp-sakhir", cat: "race", catLabel: "레이스 위켄드", title: "바레인 GP: 사키르의 밤", desc: "야간 레이스 바레인 서킷 정보", time: "2일 전", source: "PlanetF1", thumbnail: "" },
-  { slug: "infographic-2026-drivers", cat: "card", catLabel: "카드뉴스", title: "인포그래픽: 2026 팀별 드라이버", desc: "11팀 22드라이버 한눈에", time: "2일 전", source: "SHONZ GRID", thumbnail: "" },
 ];
 
 const CAT_MAP: Record<string, string> = {
@@ -51,12 +51,30 @@ function articleToNewsItem(a: Article): NewsItem {
   };
 }
 
-export const revalidate = 300; // ISR: revalidate every 5 minutes
+export const revalidate = 300;
 
 export default async function NewsPage() {
   const articles = await getArticles();
 
-  // Use Notion data if available, otherwise fallback to dummy
+  // Fetch GP articles
+  const nextRace = getNextRace();
+  const raceKeywords = RACE_KEYWORDS[nextRace.round] ?? [];
+  const gpArticlesRaw = await getArticlesByKeywords(raceKeywords, 4);
+  const gpArticles = gpArticlesRaw.map((a) => ({
+    slug: a.slug,
+    title: a.title,
+    source: a.source,
+    date: a.date,
+    thumbnail: a.thumbnail,
+  }));
+
+  const gpData = {
+    flag: nextRace.flag,
+    gp: nextRace.gp,
+    fullDate: nextRace.fullDate,
+    articles: gpArticles,
+  };
+
   if (articles.length > 0) {
     const featured = {
       slug: articles[0].slug,
@@ -81,6 +99,7 @@ export default async function NewsPage() {
         featured={featured}
         editorPicks={editorPicks}
         newsItems={newsItems}
+        gpData={gpData}
       />
     );
   }
@@ -90,6 +109,7 @@ export default async function NewsPage() {
       featured={DUMMY_FEATURED}
       editorPicks={DUMMY_EDITOR_PICKS}
       newsItems={DUMMY_NEWS}
+      gpData={gpData}
     />
   );
 }

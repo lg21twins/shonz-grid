@@ -6,9 +6,29 @@ import type {
 } from "@notionhq/client/build/src/api-endpoints";
 
 /* ── Notion client ── */
-const notion = new Client({ auth: process.env.NOTION_TOKEN });
+const NOTION_TOKEN = process.env.NOTION_TOKEN ?? "";
+const notion = new Client({ auth: NOTION_TOKEN });
 
 const ARTICLES_DB = process.env.NOTION_ARTICLES_DB ?? "";
+
+/* ── Direct REST helper (SDK dataSources.query uses wrong endpoint) ── */
+async function queryDatabase(body: Record<string, unknown>) {
+  const res = await fetch(
+    `https://api.notion.com/v1/databases/${ARTICLES_DB}/query`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${NOTION_TOKEN}`,
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      next: { revalidate: 300 },
+    },
+  );
+  if (!res.ok) return { results: [] };
+  return res.json();
+}
 
 /* ── Types ── */
 export interface Article {
@@ -95,8 +115,7 @@ export async function getArticles(
 ): Promise<Article[]> {
   if (!ARTICLES_DB) return [];
 
-  const response = await notion.dataSources.query({
-    data_source_id: ARTICLES_DB,
+  const response = await queryDatabase({
     filter: {
       and: [
         { property: "게시", checkbox: { equals: true } },
@@ -109,8 +128,8 @@ export async function getArticles(
     page_size: limit,
   });
 
-  return response.results
-    .filter((p): p is PageObjectResponse => "properties" in p)
+  return (response.results as PageObjectResponse[])
+    .filter((p) => "properties" in p)
     .map(pageToArticle);
 }
 
@@ -120,20 +139,48 @@ export async function getArticleBySlug(
 ): Promise<Article | null> {
   if (!ARTICLES_DB) return null;
 
-  const response = await notion.dataSources.query({
-    data_source_id: ARTICLES_DB,
+  const response = await queryDatabase({
     filter: {
       and: [
         { property: "슬러그", rich_text: { equals: slug } },
         { property: "게시", checkbox: { equals: true } },
       ],
     },
+    sorts: [{ property: "날짜", direction: "descending" }],
     page_size: 1,
   });
 
   const page = response.results[0];
   if (!page || !("properties" in page)) return null;
   return pageToArticle(page as PageObjectResponse);
+}
+
+/* ── Fetch articles by keywords (for GP article collection) ── */
+export async function getArticlesByKeywords(
+  keywords: string[],
+  limit = 4,
+): Promise<Article[]> {
+  if (!ARTICLES_DB || keywords.length === 0) return [];
+
+  const orFilters = keywords.flatMap((kw) => [
+    { property: "제목", title: { contains: kw } },
+    { property: "설명", rich_text: { contains: kw } },
+  ]);
+
+  const response = await queryDatabase({
+    filter: {
+      and: [
+        { property: "게시", checkbox: { equals: true } },
+        { or: orFilters },
+      ],
+    },
+    sorts: [{ property: "날짜", direction: "descending" }],
+    page_size: limit,
+  });
+
+  return (response.results as PageObjectResponse[])
+    .filter((p) => "properties" in p)
+    .map(pageToArticle);
 }
 
 /* ── Fetch article body blocks ── */
@@ -206,4 +253,120 @@ export async function getArticleBlocks(
     .filter((b): b is BlockObjectResponse => "type" in b)
     .map(blockToArticleBlock)
     .filter((b): b is ArticleBlock => b !== null);
+}
+
+/* ── Get recent source URLs for deduplication ── */
+export async function getRecentSourceUrls(): Promise<Set<string>> {
+  if (!ARTICLES_DB) return new Set();
+
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
+
+  const response = await queryDatabase({
+    filter: {
+      property: "날짜",
+      date: { on_or_after: threeDaysAgo },
+    },
+    page_size: 100,
+  });
+
+  const urls = new Set<string>();
+  for (const page of response.results as PageObjectResponse[]) {
+    if (!("properties" in page)) continue;
+    // Check 원본URL first (new field), fallback to 출처 (legacy)
+    const urlProp = page.properties["원본URL"] ?? page.properties["출처"];
+    if (urlProp?.type === "rich_text") {
+      const url = richTextToPlain(urlProp.rich_text);
+      if (url.startsWith("http")) urls.add(url);
+    }
+  }
+  return urls;
+}
+
+/* ── Create article in Notion ── */
+export async function createArticle(article: {
+  title: string;
+  slug: string;
+  description: string;
+  category: string;
+  source: string;
+  sourceUrl?: string;
+  thumbnail: string;
+  date: string;
+  published?: boolean;
+}): Promise<string> {
+  const response = await notion.pages.create({
+    parent: { database_id: ARTICLES_DB },
+    properties: {
+      "제목": {
+        title: [{ text: { content: article.title } }],
+      },
+      "슬러그": {
+        rich_text: [{ text: { content: article.slug } }],
+      },
+      "설명": {
+        rich_text: [{ text: { content: article.description } }],
+      },
+      "카테고리": {
+        select: { name: article.category },
+      },
+      "출처": {
+        rich_text: [{ text: { content: article.source } }],
+      },
+      "원본URL": {
+        rich_text: [{ text: { content: article.sourceUrl ?? "" } }],
+      },
+      "썸네일": {
+        url: article.thumbnail || null,
+      },
+      "날짜": {
+        date: { start: article.date },
+      },
+      "게시": {
+        checkbox: article.published ?? true,
+      },
+    },
+  });
+
+  return response.id;
+}
+
+/* ── Add body paragraphs to article page ── */
+export async function addArticleBody(
+  pageId: string,
+  paragraphs: string[],
+  sourceUrl?: string,
+): Promise<void> {
+  const children: Parameters<
+    typeof notion.blocks.children.append
+  >[0]["children"] = paragraphs.map((text) => ({
+    object: "block" as const,
+    type: "paragraph" as const,
+    paragraph: {
+      rich_text: [{ type: "text" as const, text: { content: text } }],
+    },
+  }));
+
+  // Add source link at the end
+  if (sourceUrl) {
+    children.push({
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [
+          { type: "text", text: { content: "원본 기사: " } },
+          {
+            type: "text",
+            text: { content: sourceUrl, link: { url: sourceUrl } },
+          },
+        ],
+      },
+    });
+  }
+
+  await notion.blocks.children.append({
+    block_id: pageId,
+    children,
+  });
 }

@@ -222,10 +222,27 @@ export const CIRCUITS: Circuit[] = [
 ];
 
 // ===== Helpers =====
+function parseRaceDate(dateStr: string): Date {
+  const [month, day] = dateStr.split(".").map(Number);
+  return new Date(2026, month - 1, day);
+}
+
 export function getNextRace(): Race {
-  return RACES[0]; // Pre-season: always R1
+  const now = new Date();
+  for (const race of RACES) {
+    const cutoff = parseRaceDate(race.date);
+    cutoff.setDate(cutoff.getDate() + 1);
+    if (now < cutoff) return race;
+  }
+  return RACES[RACES.length - 1];
 }
 
 export function getNextCircuit(): Circuit {
-  return CIRCUITS[0];
+  const nextRace = getNextRace();
+  return CIRCUITS.find((c) => c.round === nextRace.round) ?? CIRCUITS[0];
+}
+
+export function getDaysUntilRace(): number {
+  const raceDate = parseRaceDate(getNextRace().date);
+  return Math.ceil((raceDate.getTime() - Date.now()) / 86400000);
 }
