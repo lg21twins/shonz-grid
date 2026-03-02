@@ -146,11 +146,16 @@ export default async function ArticlePage({
           </Link>
 
           {notionArticle.thumbnail ? (
-            <img
-              src={notionArticle.thumbnail}
-              alt={notionArticle.title}
-              className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] object-cover"
-            />
+            <figure>
+              <img
+                src={notionArticle.thumbnail}
+                alt={notionArticle.title}
+                className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] object-cover"
+              />
+              <figcaption className="text-[11px] text-t4 text-right mt-1.5 mr-1">
+                사진 출처: {notionArticle.source}
+              </figcaption>
+            </figure>
           ) : (
             <div className="w-full aspect-[2/1] rounded-[16px] max-md:rounded-[14px] bg-gradient-to-br from-[#333] to-[#555]" />
           )}
@@ -176,6 +181,24 @@ export default async function ArticlePage({
               {blocks.map((block) => (
                 <BlockRenderer key={block.id} block={block} />
               ))}
+            </div>
+
+            {/* Attribution */}
+            <div className="mt-8 pt-5 border-t border-bdr">
+              <p className="text-[12px] text-t4 leading-[1.6]">
+                이 기사는 {notionArticle.source}의 원문을 바탕으로 AI가 한국어로 번역·요약한 것입니다.
+                기사 내 이미지의 저작권은 원 저작권자에게 있습니다.
+              </p>
+              {notionArticle.sourceUrl && (
+                <a
+                  href={notionArticle.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-[13px] font-semibold text-f1-blue hover:underline"
+                >
+                  원본 기사 보기 →
+                </a>
+              )}
             </div>
           </article>
 

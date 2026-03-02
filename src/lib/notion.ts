@@ -38,6 +38,7 @@ export interface Article {
   description: string;
   category: string;
   source: string;
+  sourceUrl: string;
   thumbnail: string;
   date: string;
   published: boolean;
@@ -91,6 +92,12 @@ function pageToArticle(page: PageObjectResponse): Article {
   const date =
     dateProp?.type === "date" ? (dateProp.date?.start ?? "") : "";
 
+  const sourceUrlProp = props["원본URL"];
+  const sourceUrl =
+    sourceUrlProp?.type === "rich_text"
+      ? richTextToPlain(sourceUrlProp.rich_text)
+      : "";
+
   const pubProp = props["게시"] ?? props["Published"];
   const published =
     pubProp?.type === "checkbox" ? pubProp.checkbox : true;
@@ -102,6 +109,7 @@ function pageToArticle(page: PageObjectResponse): Article {
     description,
     category,
     source,
+    sourceUrl,
     thumbnail,
     date,
     published,
