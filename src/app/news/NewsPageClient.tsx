@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
@@ -67,9 +67,24 @@ interface Props {
   };
 }
 
+const SCROLL_KEY = "news-scroll";
+
 export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Props) {
   const [activeCat, setActiveCat] = useState<Category>("all");
   const [search, setSearch] = useState("");
+
+  // Restore scroll position when returning from article
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SCROLL_KEY);
+    if (saved) {
+      window.scrollTo(0, parseInt(saved, 10));
+      sessionStorage.removeItem(SCROLL_KEY);
+    }
+  }, []);
+
+  function saveScroll() {
+    sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+  }
 
   const filtered = newsItems
     .filter((n) => activeCat === "all" || n.cat === activeCat)
@@ -86,7 +101,7 @@ export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Pro
 
       <main className="mx-auto max-w-[960px] px-5 max-md:px-3.5 pt-5 max-md:pt-3.5 pb-20 md:pb-5 flex flex-col gap-3 max-md:gap-2.5">
         {/* 1. FEATURED NEWS */}
-        <Link href={`/news/${featured.slug}`}>
+        <Link href={`/news/${featured.slug}`} onClick={saveScroll}>
           <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
             {featured.thumbnail ? (
               <img
@@ -127,7 +142,7 @@ export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Pro
           </div>
           <div className="grid grid-cols-2 gap-3 max-md:gap-2">
             {editorPicks.map((pick, i) => (
-              <Link key={i} href={`/news/${pick.slug}`}>
+              <Link key={i} href={`/news/${pick.slug}`} onClick={saveScroll}>
                 <div className="bg-bg2 rounded-[12px] overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-transform">
                   {pick.thumbnail ? (
                     <img
@@ -208,7 +223,7 @@ export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Pro
           {/* News List */}
           <div className="md:grid md:grid-cols-2 md:gap-x-6 md:gap-y-4">
             {filtered.map((news, i) => (
-              <Link key={i} href={`/news/${news.slug}`}>
+              <Link key={i} href={`/news/${news.slug}`} onClick={saveScroll}>
                 <div className="flex gap-3 py-3.5 max-md:border-b max-md:border-bdr max-md:last:border-b-0 max-md:last:pb-0">
                   {news.thumbnail ? (
                     <img

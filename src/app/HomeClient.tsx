@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
@@ -75,6 +75,19 @@ export function HomeClient({
 }: Props) {
   const [rankTab, setRankTab] = useState<RankTab>("drivers");
 
+  // Restore scroll position when returning from article
+  useEffect(() => {
+    const saved = sessionStorage.getItem("home-scroll");
+    if (saved) {
+      window.scrollTo(0, parseInt(saved, 10));
+      sessionStorage.removeItem("home-scroll");
+    }
+  }, []);
+
+  function saveScroll() {
+    sessionStorage.setItem("home-scroll", String(window.scrollY));
+  }
+
   function posClass(pos: number) {
     if (pos === 1) return "text-f1-red";
     if (pos === 2) return "text-t2";
@@ -89,7 +102,7 @@ export function HomeClient({
       <main className="mx-auto max-w-[960px] px-5 max-md:px-3.5 pt-5 max-md:pt-3.5 pb-20 md:pb-5 flex flex-col gap-3 max-md:gap-2.5">
         {/* 1. HEADLINE */}
         {headline ? (
-          <Link href={`/news/${headline.slug}`}>
+          <Link href={`/news/${headline.slug}`} onClick={saveScroll}>
             <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
               {headline.thumbnail ? (
                 <img
@@ -129,7 +142,7 @@ export function HomeClient({
             <Link href="/news" className="text-[13px] font-medium text-t3">전체 보기 ›</Link>
           </div>
           {briefing.map((item, i) => (
-            <Link key={item.slug} href={`/news/${item.slug}`}>
+            <Link key={item.slug} href={`/news/${item.slug}`} onClick={saveScroll}>
               <div
                 className={`flex gap-3 py-3.5 ${i === 0 ? "pt-0" : ""} ${i < briefing.length - 1 ? "border-b border-bdr" : "pb-0"}`}
               >
@@ -185,7 +198,7 @@ export function HomeClient({
 
         {/* 4. TECH ANALYSIS — Featured */}
         {techFeatured && (
-          <Link href={`/news/${techFeatured.slug}`}>
+          <Link href={`/news/${techFeatured.slug}`} onClick={saveScroll}>
             <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
               {techFeatured.thumbnail ? (
                 <img
@@ -219,7 +232,7 @@ export function HomeClient({
               <Link href="/news" className="text-[13px] font-medium text-t3">전체 보기 ›</Link>
             </div>
             {techMore.map((item, i) => (
-              <Link key={item.slug} href={`/news/${item.slug}`}>
+              <Link key={item.slug} href={`/news/${item.slug}`} onClick={saveScroll}>
                 <div
                   className={`flex gap-3 py-3.5 ${i === 0 ? "pt-0" : ""} ${i < techMore.length - 1 ? "border-b border-bdr" : "pb-0"}`}
                 >
