@@ -120,76 +120,76 @@ export const CONSTRUCTORS: Constructor[] = [
 // ===== Race Calendar =====
 export const RACES: Race[] = [
   { round: 1, flag: "🇦🇺", country: "호주", gp: "호주 그랑프리", circuit: "Albert Park Circuit", city: "멜버른", date: "3.8", fullDate: "3월 8일 (일)", sessions: [
-    { session: "FP1", time: "금 18:00" }, { session: "FP2", time: "금 21:00" }, { session: "FP3", time: "토 18:00" }, { session: "예선", time: "토 21:00" }, { session: "결승", time: "일 21:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 18:00" }, { session: "프리 프랙티스 2", time: "금 21:00" }, { session: "프리 프랙티스 3", time: "토 18:00" }, { session: "퀄리파잉", time: "토 21:00" }, { session: "레이스", time: "일 21:00", isRace: true },
   ]},
   { round: 2, flag: "🇨🇳", country: "중국", gp: "중국 그랑프리", circuit: "Shanghai International", city: "상하이", date: "3.15", fullDate: "3월 15일 (일)", sessions: [
-    { session: "FP1", time: "금 18:00" }, { session: "FP2", time: "금 21:00" }, { session: "FP3", time: "토 18:00" }, { session: "예선", time: "토 21:00" }, { session: "결승", time: "일 21:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 18:00" }, { session: "프리 프랙티스 2", time: "금 21:00" }, { session: "프리 프랙티스 3", time: "토 18:00" }, { session: "퀄리파잉", time: "토 21:00" }, { session: "레이스", time: "일 21:00", isRace: true },
   ]},
   { round: 3, flag: "🇯🇵", country: "일본", gp: "일본 그랑프리", circuit: "Suzuka Circuit", city: "스즈카", date: "3.29", fullDate: "3월 29일 (일)", sessions: [
-    { session: "FP1", time: "금 18:00" }, { session: "FP2", time: "금 21:00" }, { session: "FP3", time: "토 18:00" }, { session: "예선", time: "토 21:00" }, { session: "결승", time: "일 21:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 18:00" }, { session: "프리 프랙티스 2", time: "금 21:00" }, { session: "프리 프랙티스 3", time: "토 18:00" }, { session: "퀄리파잉", time: "토 21:00" }, { session: "레이스", time: "일 21:00", isRace: true },
   ]},
   { round: 4, flag: "🇧🇭", country: "바레인", gp: "바레인 그랑프리", circuit: "Bahrain International", city: "사키르", date: "4.12", fullDate: "4월 12일 (일)", sessions: [
-    { session: "FP1", time: "금 22:00" }, { session: "FP2", time: "토 01:00" }, { session: "FP3", time: "토 22:00" }, { session: "예선", time: "일 01:00" }, { session: "결승", time: "일 24:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 22:00" }, { session: "프리 프랙티스 2", time: "토 01:00" }, { session: "프리 프랙티스 3", time: "토 22:00" }, { session: "퀄리파잉", time: "일 01:00" }, { session: "레이스", time: "일 24:00", isRace: true },
   ]},
   { round: 5, flag: "🇸🇦", country: "사우디", gp: "사우디아라비아 그랑프리", circuit: "Jeddah Corniche", city: "제다", date: "4.19", fullDate: "4월 19일 (일)", sessions: [
-    { session: "FP1", time: "금 23:00" }, { session: "FP2", time: "토 02:00" }, { session: "FP3", time: "토 23:00" }, { session: "예선", time: "일 02:00" }, { session: "결승", time: "일 01:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 23:00" }, { session: "프리 프랙티스 2", time: "토 02:00" }, { session: "프리 프랙티스 3", time: "토 23:00" }, { session: "퀄리파잉", time: "일 02:00" }, { session: "레이스", time: "일 01:00", isRace: true },
   ]},
   { round: 6, flag: "🇺🇸", country: "마이애미", gp: "마이애미 그랑프리", circuit: "Miami International", city: "마이애미", date: "5.3", fullDate: "5월 3일 (일)", sessions: [
-    { session: "FP1", time: "토 02:00" }, { session: "Sprint 예선", time: "토 06:00" }, { session: "Sprint", time: "일 02:00" }, { session: "예선", time: "일 06:00" }, { session: "결승", time: "월 04:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "토 02:00" }, { session: "Sprint 예선", time: "토 06:00" }, { session: "Sprint", time: "일 02:00" }, { session: "퀄리파잉", time: "일 06:00" }, { session: "레이스", time: "월 04:00", isRace: true },
   ]},
   { round: 7, flag: "🇨🇦", country: "캐나다", gp: "캐나다 그랑프리", circuit: "Circuit Gilles Villeneuve", city: "몬트리올", date: "5.24", fullDate: "5월 24일 (일)", sessions: [
-    { session: "FP1", time: "금 23:30" }, { session: "FP2", time: "토 02:30" }, { session: "FP3", time: "토 22:30" }, { session: "예선", time: "일 01:00" }, { session: "결승", time: "일 24:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 23:30" }, { session: "프리 프랙티스 2", time: "토 02:30" }, { session: "프리 프랙티스 3", time: "토 22:30" }, { session: "퀄리파잉", time: "일 01:00" }, { session: "레이스", time: "일 24:00", isRace: true },
   ]},
   { round: 8, flag: "🇲🇨", country: "모나코", gp: "모나코 그랑프리", circuit: "Circuit de Monaco", city: "몬테카를로", date: "6.7", fullDate: "6월 7일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 9, flag: "🇪🇸", country: "스페인", gp: "스페인 그랑프리", circuit: "Circuit de Barcelona-Catalunya", city: "바르셀로나", date: "6.14", fullDate: "6월 14일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 10, flag: "🇦🇹", country: "오스트리아", gp: "오스트리아 그랑프리", circuit: "Red Bull Ring", city: "슈필베르크", date: "6.28", fullDate: "6월 28일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 11, flag: "🇬🇧", country: "영국", gp: "영국 그랑프리", circuit: "Silverstone Circuit", city: "실버스톤", date: "7.5", fullDate: "7월 5일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 23:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 23:00", isRace: true },
   ]},
   { round: 12, flag: "🇧🇪", country: "벨기에", gp: "벨기에 그랑프리", circuit: "Circuit de Spa-Francorchamps", city: "스파", date: "7.19", fullDate: "7월 19일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 13, flag: "🇭🇺", country: "헝가리", gp: "헝가리 그랑프리", circuit: "Hungaroring", city: "부다페스트", date: "7.26", fullDate: "7월 26일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 14, flag: "🇳🇱", country: "네덜란드", gp: "네덜란드 그랑프리", circuit: "Circuit Zandvoort", city: "잔트부르트", date: "8.23", fullDate: "8월 23일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 15, flag: "🇮🇹", country: "이탈리아", gp: "이탈리아 그랑프리", circuit: "Autodromo di Monza", city: "몬차", date: "9.6", fullDate: "9월 6일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 16, flag: "🇪🇸", country: "마드리드", gp: "마드리드 그랑프리", circuit: "Madrid Street Circuit", city: "마드리드", date: "9.13", fullDate: "9월 13일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 20:00" }, { session: "예선", time: "토 23:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 20:00" }, { session: "퀄리파잉", time: "토 23:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
   { round: 17, flag: "🇦🇿", country: "아제르바이잔", gp: "아제르바이잔 그랑프리", circuit: "Baku City Circuit", city: "바쿠", date: "9.26", fullDate: "9월 26일 (일)", sessions: [
-    { session: "FP1", time: "금 19:00" }, { session: "FP2", time: "금 22:00" }, { session: "FP3", time: "토 19:00" }, { session: "예선", time: "토 22:00" }, { session: "결승", time: "일 20:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 19:00" }, { session: "프리 프랙티스 2", time: "금 22:00" }, { session: "프리 프랙티스 3", time: "토 19:00" }, { session: "퀄리파잉", time: "토 22:00" }, { session: "레이스", time: "일 20:00", isRace: true },
   ]},
   { round: 18, flag: "🇸🇬", country: "싱가포르", gp: "싱가포르 그랑프리", circuit: "Marina Bay Street", city: "싱가포르", date: "10.11", fullDate: "10월 11일 (일)", sessions: [
-    { session: "FP1", time: "금 18:30" }, { session: "FP2", time: "금 22:00" }, { session: "FP3", time: "토 18:30" }, { session: "예선", time: "토 22:00" }, { session: "결승", time: "일 21:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 18:30" }, { session: "프리 프랙티스 2", time: "금 22:00" }, { session: "프리 프랙티스 3", time: "토 18:30" }, { session: "퀄리파잉", time: "토 22:00" }, { session: "레이스", time: "일 21:00", isRace: true },
   ]},
   { round: 19, flag: "🇺🇸", country: "미국", gp: "미국 그랑프리", circuit: "COTA", city: "오스틴", date: "10.25", fullDate: "10월 25일 (일)", sessions: [
-    { session: "FP1", time: "토 02:00" }, { session: "Sprint 예선", time: "토 06:00" }, { session: "Sprint", time: "일 02:00" }, { session: "예선", time: "일 06:00" }, { session: "결승", time: "월 04:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "토 02:00" }, { session: "Sprint 예선", time: "토 06:00" }, { session: "Sprint", time: "일 02:00" }, { session: "퀄리파잉", time: "일 06:00" }, { session: "레이스", time: "월 04:00", isRace: true },
   ]},
   { round: 20, flag: "🇲🇽", country: "멕시코", gp: "멕시코 그랑프리", circuit: "Autodromo Hermanos Rodriguez", city: "멕시코시티", date: "11.1", fullDate: "11월 1일 (일)", sessions: [
-    { session: "FP1", time: "토 03:00" }, { session: "FP2", time: "토 06:30" }, { session: "FP3", time: "일 03:00" }, { session: "예선", time: "일 06:00" }, { session: "결승", time: "월 05:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "토 03:00" }, { session: "프리 프랙티스 2", time: "토 06:30" }, { session: "프리 프랙티스 3", time: "일 03:00" }, { session: "퀄리파잉", time: "일 06:00" }, { session: "레이스", time: "월 05:00", isRace: true },
   ]},
   { round: 21, flag: "🇧🇷", country: "브라질", gp: "브라질 그랑프리", circuit: "Interlagos", city: "상파울루", date: "11.8", fullDate: "11월 8일 (일)", sessions: [
-    { session: "FP1", time: "토 01:30" }, { session: "Sprint 예선", time: "토 05:30" }, { session: "Sprint", time: "일 01:00" }, { session: "예선", time: "일 05:00" }, { session: "결승", time: "월 02:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "토 01:30" }, { session: "Sprint 예선", time: "토 05:30" }, { session: "Sprint", time: "일 01:00" }, { session: "퀄리파잉", time: "일 05:00" }, { session: "레이스", time: "월 02:00", isRace: true },
   ]},
   { round: 22, flag: "🇺🇸", country: "라스베가스", gp: "라스베가스 그랑프리", circuit: "Las Vegas Strip", city: "라스베가스", date: "11.21", fullDate: "11월 21일 (일)", sessions: [
-    { session: "FP1", time: "토 07:00" }, { session: "FP2", time: "토 10:00" }, { session: "FP3", time: "일 07:00" }, { session: "예선", time: "일 10:00" }, { session: "결승", time: "월 09:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "토 07:00" }, { session: "프리 프랙티스 2", time: "토 10:00" }, { session: "프리 프랙티스 3", time: "일 07:00" }, { session: "퀄리파잉", time: "일 10:00" }, { session: "레이스", time: "월 09:00", isRace: true },
   ]},
   { round: 23, flag: "🇶🇦", country: "카타르", gp: "카타르 그랑프리", circuit: "Lusail International", city: "루사일", date: "11.29", fullDate: "11월 29일 (일)", sessions: [
-    { session: "FP1", time: "금 21:30" }, { session: "Sprint 예선", time: "토 01:30" }, { session: "Sprint", time: "토 21:00" }, { session: "예선", time: "일 01:00" }, { session: "결승", time: "일 23:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:30" }, { session: "Sprint 예선", time: "토 01:30" }, { session: "Sprint", time: "토 21:00" }, { session: "퀄리파잉", time: "일 01:00" }, { session: "레이스", time: "일 23:00", isRace: true },
   ]},
   { round: 24, flag: "🇦🇪", country: "아부다비", gp: "아부다비 그랑프리", circuit: "Yas Marina Circuit", city: "아부다비", date: "12.6", fullDate: "12월 6일 (일)", sessions: [
-    { session: "FP1", time: "금 21:00" }, { session: "FP2", time: "금 24:00" }, { session: "FP3", time: "토 22:00" }, { session: "예선", time: "일 01:00" }, { session: "결승", time: "일 22:00", isRace: true },
+    { session: "프리 프랙티스 1", time: "금 21:00" }, { session: "프리 프랙티스 2", time: "금 24:00" }, { session: "프리 프랙티스 3", time: "토 22:00" }, { session: "퀄리파잉", time: "일 01:00" }, { session: "레이스", time: "일 22:00", isRace: true },
   ]},
 ];
 
