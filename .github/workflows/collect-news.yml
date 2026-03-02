@@ -1,0 +1,15 @@
+name: Collect News
+
+on:
+  schedule:
+    - cron: "0 */3 * * *" # 3시간마다
+  workflow_dispatch: # 수동 실행 버튼
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger news collection
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            "https://src-eight-steel.vercel.app/api/cron/collect-news?secret=${{ secrets.CRON_SECRET }}"
