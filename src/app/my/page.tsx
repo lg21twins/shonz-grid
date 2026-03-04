@@ -29,6 +29,7 @@ export default function MyPage() {
     result: false,
     breaking: false,
   });
+  const [openInfo, setOpenInfo] = useState<string | null>(null);
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
 
@@ -155,7 +156,7 @@ export default function MyPage() {
                   >
                     <div
                       className={`absolute top-[3px] w-[22px] h-[22px] rounded-full bg-white shadow-sm transition-transform ${
-                        notifications[item.key] ? "left-[26px]" : "left-[3px]"
+                        notifications[item.key] ? "left-[23px]" : "left-[3px]"
                       }`}
                     />
                   </button>
@@ -187,7 +188,7 @@ export default function MyPage() {
                 >
                   <div
                     className={`absolute top-[3px] w-[22px] h-[22px] rounded-full bg-white shadow-sm transition-transform ${
-                      isDark ? "left-[26px]" : "left-[3px]"
+                      isDark ? "left-[23px]" : "left-[3px]"
                     }`}
                   />
                 </button>
@@ -241,27 +242,116 @@ export default function MyPage() {
             {/* 4. App Info */}
             <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
               <p className="text-[15px] font-bold text-t2 mb-4">앱 정보</p>
-              {[
-                { label: "버전 정보", right: "badge" },
-                { label: "개인정보처리방침", right: "arrow" },
-                { label: "이용약관", right: "arrow" },
-                { label: "문의 · 피드백", right: "arrow" },
-                { label: "오픈소스 라이선스", right: "arrow" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center py-3.5 border-b border-bdr last:border-b-0 cursor-pointer"
+
+              {/* 버전 정보 */}
+              <div className="flex items-center py-3.5 border-b border-bdr">
+                <span className="flex-1 text-[15px] font-medium text-t1">버전 정보</span>
+                <span className="inline-flex px-2.5 py-[3px] rounded-full bg-bg2 text-[12px] font-bold text-t3 font-display">
+                  v1.0.0
+                </span>
+              </div>
+
+              {/* 개인정보처리방침 */}
+              <div className="border-b border-bdr">
+                <button
+                  onClick={() => setOpenInfo(openInfo === "privacy" ? null : "privacy")}
+                  className="flex items-center py-3.5 w-full text-left"
                 >
-                  <span className="flex-1 text-[15px] font-medium text-t1">{item.label}</span>
-                  {item.right === "badge" ? (
-                    <span className="inline-flex px-2.5 py-[3px] rounded-full bg-bg2 text-[12px] font-bold text-t3 font-display">
-                      v1.0.0
-                    </span>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-t4"><polyline points="9 18 15 12 9 6"/></svg>
-                  )}
-                </div>
-              ))}
+                  <span className="flex-1 text-[15px] font-medium text-t1">개인정보처리방침</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-t4 transition-transform ${openInfo === "privacy" ? "rotate-90" : ""}`}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {openInfo === "privacy" && (
+                  <div className="pb-4 text-[13px] text-t2 leading-[1.6] space-y-2">
+                    <p className="font-semibold text-t1">SHONZ GRID 개인정보처리방침</p>
+                    <p>SHONZ GRID(이하 &quot;서비스&quot;)는 이용자의 개인정보를 중요하게 생각하며, 관련 법령에 따라 적법하게 처리합니다.</p>
+                    <p className="font-semibold text-t1 pt-1">1. 수집하는 개인정보</p>
+                    <p>본 서비스는 별도의 회원가입 없이 이용 가능하며, 현재 개인정보를 수집하지 않습니다. 향후 로그인 기능 도입 시 이메일, 닉네임 등 최소한의 정보만 수집합니다.</p>
+                    <p className="font-semibold text-t1 pt-1">2. 개인정보의 이용 목적</p>
+                    <p>수집된 정보는 서비스 제공, 맞춤 콘텐츠 추천, 알림 발송 등의 목적으로만 사용됩니다.</p>
+                    <p className="font-semibold text-t1 pt-1">3. 개인정보의 보유 및 파기</p>
+                    <p>이용 목적 달성 시 지체 없이 파기하며, 관련 법령에 따라 보관이 필요한 경우 해당 기간 동안 보관합니다.</p>
+                    <p className="font-semibold text-t1 pt-1">4. 문의</p>
+                    <p>개인정보 관련 문의는 shonzmag@gmail.com으로 연락해 주세요.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 이용약관 */}
+              <div className="border-b border-bdr">
+                <button
+                  onClick={() => setOpenInfo(openInfo === "terms" ? null : "terms")}
+                  className="flex items-center py-3.5 w-full text-left"
+                >
+                  <span className="flex-1 text-[15px] font-medium text-t1">이용약관</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-t4 transition-transform ${openInfo === "terms" ? "rotate-90" : ""}`}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {openInfo === "terms" && (
+                  <div className="pb-4 text-[13px] text-t2 leading-[1.6] space-y-2">
+                    <p className="font-semibold text-t1">SHONZ GRID 이용약관</p>
+                    <p className="font-semibold text-t1 pt-1">제1조 (목적)</p>
+                    <p>본 약관은 SHONZ GRID 서비스의 이용 조건 및 절차에 관한 사항을 규정합니다.</p>
+                    <p className="font-semibold text-t1 pt-1">제2조 (서비스 내용)</p>
+                    <p>본 서비스는 F1 관련 뉴스, 일정, 순위, 서킷 정보 등을 한국어로 제공하는 비영리 팬 미디어 플랫폼입니다. 어떠한 형태의 광고, 유료 구독, 수익 창출 활동도 하지 않습니다.</p>
+                    <p className="font-semibold text-t1 pt-1">제3조 (기사 생성 방식)</p>
+                    <p>본 서비스의 한국어 기사는 해외 F1 전문 매체(Formula1.com, Motorsport.com, RaceFans 등)의 원문을 기반으로 AI(Claude)가 자동 번역·요약하여 생성합니다. 모든 기사에는 원본 출처가 명시되며, &quot;원본 기사 보기&quot; 버튼을 통해 원문을 확인할 수 있습니다.</p>
+                    <p className="font-semibold text-t1 pt-1">제4조 (저작권)</p>
+                    <p>원본 기사의 저작권은 각 출처 매체에 있습니다. SHONZ GRID는 비영리·정보 제공 목적의 번역·요약본을 제공하며, 저작권자의 요청 시 즉시 삭제합니다.</p>
+                    <p className="font-semibold text-t1 pt-1">제5조 (면책)</p>
+                    <p>AI가 생성한 기사는 번역·요약 과정에서 원문과 차이가 발생할 수 있으며, 정확성이나 완전성을 보장하지 않습니다. 정확한 내용은 반드시 원본 기사를 확인해 주세요. 베팅·투자 관련 기사는 참고용이며, 이로 인한 손실에 대해 책임지지 않습니다.</p>
+                    <p className="font-semibold text-t1 pt-1">제6조 (약관 변경)</p>
+                    <p>약관이 변경될 경우 서비스 내 공지를 통해 안내합니다.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 문의 · 피드백 */}
+              <div className="border-b border-bdr">
+                <button
+                  onClick={() => setOpenInfo(openInfo === "contact" ? null : "contact")}
+                  className="flex items-center py-3.5 w-full text-left"
+                >
+                  <span className="flex-1 text-[15px] font-medium text-t1">문의 · 피드백</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-t4 transition-transform ${openInfo === "contact" ? "rotate-90" : ""}`}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {openInfo === "contact" && (
+                  <div className="pb-4 text-[13px] text-t2 leading-[1.6] space-y-3">
+                    <p>서비스 이용 중 문의 사항이나 개선 의견이 있으시면 아래 채널로 연락해 주세요.</p>
+                    <div className="flex flex-col gap-2">
+                      <a href="mailto:shonzmag@gmail.com" className="flex items-center gap-2 text-f1-blue font-medium">
+                        <span>📧</span> shonzmag@gmail.com
+                      </a>
+                      <a href="https://www.instagram.com/shonz_mag" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-f1-blue font-medium">
+                        <span>📸</span> @shonz_mag (Instagram)
+                      </a>
+                    </div>
+                    <p className="text-t3">보내주신 피드백은 서비스 개선에 적극 반영됩니다.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 오픈소스 라이선스 */}
+              <div>
+                <button
+                  onClick={() => setOpenInfo(openInfo === "license" ? null : "license")}
+                  className="flex items-center py-3.5 w-full text-left"
+                >
+                  <span className="flex-1 text-[15px] font-medium text-t1">오픈소스 라이선스</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-t4 transition-transform ${openInfo === "license" ? "rotate-90" : ""}`}><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+                {openInfo === "license" && (
+                  <div className="pb-4 text-[13px] text-t2 leading-[1.6] space-y-2">
+                    <p>본 서비스는 다음 오픈소스 소프트웨어를 사용합니다.</p>
+                    <div className="bg-bg2 rounded-[10px] p-3 space-y-1.5 font-mono text-[11px]">
+                      <p><span className="text-t1 font-semibold">Next.js</span> — MIT License</p>
+                      <p><span className="text-t1 font-semibold">React</span> — MIT License</p>
+                      <p><span className="text-t1 font-semibold">Tailwind CSS</span> — MIT License</p>
+                      <p><span className="text-t1 font-semibold">@notionhq/client</span> — MIT License</p>
+                      <p><span className="text-t1 font-semibold">@anthropic-ai/sdk</span> — MIT License</p>
+                    </div>
+                    <p className="text-t3">각 라이브러리의 전체 라이선스 텍스트는 해당 프로젝트의 공식 저장소에서 확인할 수 있습니다.</p>
+                  </div>
+                )}
+              </div>
             </section>
 
             {/* 5. Logout */}

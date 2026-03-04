@@ -14,7 +14,8 @@ export interface Constructor {
   name: string;
   teamId: string;
   points: number | null;
-  logoUrl: string;
+  logoUrl?: string;
+  carImageUrl?: string;
 }
 
 export interface RaceSession {
@@ -63,58 +64,103 @@ export const TEAM_COLORS: Record<string, string> = {
   cadillac: "#1F3D2C",
 };
 
+// ===== Jolpica API ID Mappings =====
+export const DRIVER_ID_MAP: Record<string, string> = {
+  norris: "랜도 노리스",
+  max_verstappen: "막스 베르스타펜",
+  leclerc: "샤를 르클레르",
+  hamilton: "루이스 해밀턴",
+  piastri: "오스카 피아스트리",
+  russell: "조지 러셀",
+  sainz: "카를로스 사인츠",
+  alonso: "페르난도 알론소",
+  hadjar: "아이작 하자르",
+  antonelli: "키미 안토넬리",
+  albon: "알렉산더 알본",
+  gasly: "피에르 가슬리",
+  lawson: "리암 로슨",
+  stroll: "랜스 스트롤",
+  ocon: "에스테반 오콘",
+  colapinto: "프랑코 콜라핀토",
+  bearman: "올리버 베어만",
+  hulkenberg: "니코 휠켄베르크",
+  lindblad: "아르비드 린드블라드",
+  bortoleto: "가브리엘 보톨레토",
+  perez: "세르히오 페레즈",
+  bottas: "발테리 보타스",
+};
+
+export const CONSTRUCTOR_ID_MAP: Record<string, string> = {
+  mclaren: "mclaren",
+  ferrari: "ferrari",
+  red_bull: "redbull",
+  mercedes: "mercedes",
+  aston_martin: "aston",
+  williams: "williams",
+  alpine: "alpine",
+  rb: "rb",
+  haas: "haas",
+  sauber: "audi",
+  cadillac: "cadillac",
+};
+
 // ===== F1 2026 CDN Image Base =====
 const F1_CDN = "https://media.formula1.com/image/upload";
 
-// Face-cropped circular avatar (Cloudinary auto face detection)
+// Driver headshot (top-anchored fill for consistent framing)
 function driverImg(teamSlug: string, code: string) {
-  return `${F1_CDN}/c_thumb,g_face,w_200,h_200/q_auto/v1740000000/common/f1/2026/${teamSlug}/${code}/2026${teamSlug}${code}right.webp`;
+  return `${F1_CDN}/c_fill,w_600,h_900,g_face/c_pad,w_600,h_930,g_south,b_auto/q_auto:best/v1740000000/common/f1/2026/${teamSlug}/${code}/2026${teamSlug}${code}right.webp`;
 }
 
-// 2026 team logo (white on transparent)
-function teamLogo2026(teamSlug: string) {
-  return `${F1_CDN}/c_lfill,w_100/q_auto/v1740000000/common/f1/2026/${teamSlug}/2026${teamSlug}logowhite.webp`;
+// Team logo badge
+function teamLogo(cdnSlug: string) {
+  return `${F1_CDN}/c_fill,w_100,h_100/q_auto/content/dam/fom-website/teams/2025/${cdnSlug}-logo.png`;
+}
+
+// Team car image (side profile — left view for better livery visibility)
+function teamCarImg(cdnSlug: string) {
+  return `${F1_CDN}/c_lfill,w_800,h_500/q_auto:best/d_common:f1:2026:fallback:car:2026fallbackcarleft.webp/v1740000000/common/f1/2026/${cdnSlug}/2026${cdnSlug}carleft.webp`;
 }
 
 // ===== Drivers =====
 export const DRIVERS: Driver[] = [
-  { pos: 1, name: "L. 노리스", team: "McLaren", teamId: "mclaren", points: null, imageUrl: driverImg("mclaren", "lannor01") },
-  { pos: 2, name: "M. 베르스타펜", team: "Red Bull", teamId: "redbull", points: null, imageUrl: driverImg("redbullracing", "maxver01") },
-  { pos: 3, name: "C. 르클레르", team: "Ferrari", teamId: "ferrari", points: null, imageUrl: driverImg("ferrari", "chalec01") },
-  { pos: 4, name: "L. 해밀턴", team: "Ferrari", teamId: "ferrari", points: null, imageUrl: driverImg("ferrari", "lewham01") },
-  { pos: 5, name: "O. 피아스트리", team: "McLaren", teamId: "mclaren", points: null, imageUrl: driverImg("mclaren", "oscpia01") },
-  { pos: 6, name: "G. 러셀", team: "Mercedes", teamId: "mercedes", points: null, imageUrl: driverImg("mercedes", "georus01") },
-  { pos: 7, name: "C. 사인츠", team: "Williams", teamId: "williams", points: null, imageUrl: driverImg("williams", "carsai01") },
-  { pos: 8, name: "F. 알론소", team: "Aston Martin", teamId: "aston", points: null, imageUrl: driverImg("astonmartin", "feralo01") },
-  { pos: 9, name: "I. 하자르", team: "Red Bull", teamId: "redbull", points: null, imageUrl: driverImg("redbullracing", "isahad01") },
-  { pos: 10, name: "K. 안토넬리", team: "Mercedes", teamId: "mercedes", points: null, imageUrl: driverImg("mercedes", "andant01") },
-  { pos: 11, name: "A. 알본", team: "Williams", teamId: "williams", points: null, imageUrl: driverImg("williams", "alealb01") },
-  { pos: 12, name: "P. 가슬리", team: "Alpine", teamId: "alpine", points: null, imageUrl: driverImg("alpine", "piegas01") },
-  { pos: 13, name: "L. 로슨", team: "Racing Bulls", teamId: "rb", points: null, imageUrl: driverImg("racingbulls", "lialaw01") },
-  { pos: 14, name: "L. 스트롤", team: "Aston Martin", teamId: "aston", points: null, imageUrl: driverImg("astonmartin", "lanstr01") },
-  { pos: 15, name: "E. 오콘", team: "Haas", teamId: "haas", points: null, imageUrl: driverImg("haas", "estoco01") },
-  { pos: 16, name: "F. 콜라핀토", team: "Alpine", teamId: "alpine", points: null, imageUrl: driverImg("alpine", "fracol01") },
-  { pos: 17, name: "O. 베어만", team: "Haas", teamId: "haas", points: null, imageUrl: driverImg("haas", "olibea01") },
-  { pos: 18, name: "N. 휠켄베르크", team: "Audi", teamId: "audi", points: null, imageUrl: driverImg("audi", "nichul01") },
-  { pos: 19, name: "A. 린드블라드", team: "Racing Bulls", teamId: "rb", points: null, imageUrl: driverImg("racingbulls", "arvlin01") },
-  { pos: 20, name: "G. 보르톨레토", team: "Audi", teamId: "audi", points: null, imageUrl: driverImg("audi", "gabbar01") },
-  { pos: 21, name: "S. 페레즈", team: "Cadillac", teamId: "cadillac", points: null, imageUrl: driverImg("cadillac", "serper01") },
-  { pos: 22, name: "V. 보타스", team: "Cadillac", teamId: "cadillac", points: null, imageUrl: driverImg("cadillac", "valbot01") },
+  { pos: 1, name: "랜도 노리스", team: "McLaren", teamId: "mclaren", points: null, imageUrl: driverImg("mclaren", "lannor01") },
+  { pos: 2, name: "막스 베르스타펜", team: "Red Bull", teamId: "redbull", points: null, imageUrl: driverImg("redbullracing", "maxver01") },
+  { pos: 3, name: "샤를 르클레르", team: "Ferrari", teamId: "ferrari", points: null, imageUrl: driverImg("ferrari", "chalec01") },
+  { pos: 4, name: "루이스 해밀턴", team: "Ferrari", teamId: "ferrari", points: null, imageUrl: driverImg("ferrari", "lewham01") },
+  { pos: 5, name: "오스카 피아스트리", team: "McLaren", teamId: "mclaren", points: null, imageUrl: driverImg("mclaren", "oscpia01") },
+  { pos: 6, name: "조지 러셀", team: "Mercedes", teamId: "mercedes", points: null, imageUrl: driverImg("mercedes", "georus01") },
+  { pos: 7, name: "카를로스 사인츠", team: "Williams", teamId: "williams", points: null, imageUrl: driverImg("williams", "carsai01") },
+  { pos: 8, name: "페르난도 알론소", team: "Aston Martin", teamId: "aston", points: null, imageUrl: driverImg("astonmartin", "feralo01") },
+  { pos: 9, name: "아이작 하자르", team: "Red Bull", teamId: "redbull", points: null, imageUrl: driverImg("redbullracing", "isahad01") },
+  { pos: 10, name: "키미 안토넬리", team: "Mercedes", teamId: "mercedes", points: null, imageUrl: driverImg("mercedes", "andant01") },
+  { pos: 11, name: "알렉산더 알본", team: "Williams", teamId: "williams", points: null, imageUrl: driverImg("williams", "alealb01") },
+  { pos: 12, name: "피에르 가슬리", team: "Alpine", teamId: "alpine", points: null, imageUrl: driverImg("alpine", "piegas01") },
+  { pos: 13, name: "리암 로슨", team: "Racing Bulls", teamId: "rb", points: null, imageUrl: driverImg("racingbulls", "lialaw01") },
+  { pos: 14, name: "랜스 스트롤", team: "Aston Martin", teamId: "aston", points: null, imageUrl: driverImg("astonmartin", "lanstr01") },
+  { pos: 15, name: "에스테반 오콘", team: "Haas", teamId: "haas", points: null, imageUrl: driverImg("haas", "estoco01") },
+  { pos: 16, name: "프랑코 콜라핀토", team: "Alpine", teamId: "alpine", points: null, imageUrl: driverImg("alpine", "fracol01") },
+  { pos: 17, name: "올리버 베어만", team: "Haas", teamId: "haas", points: null, imageUrl: driverImg("haas", "olibea01") },
+  { pos: 18, name: "니코 휠켄베르크", team: "Audi", teamId: "audi", points: null, imageUrl: driverImg("audi", "nichul01") },
+  { pos: 19, name: "아르비드 린드블라드", team: "Racing Bulls", teamId: "rb", points: null, imageUrl: driverImg("racingbulls", "arvlin01") },
+  { pos: 20, name: "가브리엘 보톨레토", team: "Audi", teamId: "audi", points: null, imageUrl: driverImg("audi", "gabbor01") },
+  { pos: 21, name: "세르히오 페레즈", team: "Cadillac", teamId: "cadillac", points: null, imageUrl: driverImg("cadillac", "serper01") },
+  { pos: 22, name: "발테리 보타스", team: "Cadillac", teamId: "cadillac", points: null, imageUrl: driverImg("cadillac", "valbot01") },
 ];
 
 // ===== Constructors =====
 export const CONSTRUCTORS: Constructor[] = [
-  { pos: 1, name: "McLaren", teamId: "mclaren", points: null, logoUrl: teamLogo2026("mclaren") },
-  { pos: 2, name: "Ferrari", teamId: "ferrari", points: null, logoUrl: teamLogo2026("ferrari") },
-  { pos: 3, name: "Red Bull", teamId: "redbull", points: null, logoUrl: teamLogo2026("redbullracing") },
-  { pos: 4, name: "Mercedes", teamId: "mercedes", points: null, logoUrl: teamLogo2026("mercedes") },
-  { pos: 5, name: "Aston Martin", teamId: "aston", points: null, logoUrl: teamLogo2026("astonmartin") },
-  { pos: 6, name: "Williams", teamId: "williams", points: null, logoUrl: teamLogo2026("williams") },
-  { pos: 7, name: "Alpine", teamId: "alpine", points: null, logoUrl: teamLogo2026("alpine") },
-  { pos: 8, name: "Racing Bulls", teamId: "rb", points: null, logoUrl: teamLogo2026("racingbulls") },
-  { pos: 9, name: "Haas", teamId: "haas", points: null, logoUrl: teamLogo2026("haasf1team") },
-  { pos: 10, name: "Audi", teamId: "audi", points: null, logoUrl: teamLogo2026("audi") },
-  { pos: 11, name: "Cadillac", teamId: "cadillac", points: null, logoUrl: teamLogo2026("cadillac") },
+  { pos: 1, name: "McLaren", teamId: "mclaren", points: null, logoUrl: teamLogo("mclaren"), carImageUrl: teamCarImg("mclaren") },
+  { pos: 2, name: "Ferrari", teamId: "ferrari", points: null, logoUrl: teamLogo("ferrari"), carImageUrl: teamCarImg("ferrari") },
+  { pos: 3, name: "Red Bull", teamId: "redbull", points: null, logoUrl: teamLogo("red-bull-racing"), carImageUrl: teamCarImg("redbullracing") },
+  { pos: 4, name: "Mercedes", teamId: "mercedes", points: null, logoUrl: teamLogo("mercedes"), carImageUrl: teamCarImg("mercedes") },
+  { pos: 5, name: "Aston Martin", teamId: "aston", points: null, logoUrl: teamLogo("aston-martin"), carImageUrl: teamCarImg("astonmartin") },
+  { pos: 6, name: "Williams", teamId: "williams", points: null, logoUrl: teamLogo("williams"), carImageUrl: teamCarImg("williams") },
+  { pos: 7, name: "Alpine", teamId: "alpine", points: null, logoUrl: teamLogo("alpine"), carImageUrl: teamCarImg("alpine") },
+  { pos: 8, name: "Racing Bulls", teamId: "rb", points: null, logoUrl: teamLogo("racing-bulls"), carImageUrl: teamCarImg("racingbulls") },
+  { pos: 9, name: "Haas", teamId: "haas", points: null, logoUrl: teamLogo("haas"), carImageUrl: teamCarImg("haasf1team") },
+  { pos: 10, name: "Audi", teamId: "audi", points: null, logoUrl: "/logos/audi.svg", carImageUrl: teamCarImg("audi") },
+  { pos: 11, name: "Cadillac", teamId: "cadillac", points: null, logoUrl: "/logos/cadillac.svg", carImageUrl: teamCarImg("cadillac") },
 ];
 
 // ===== Race Calendar =====
@@ -194,31 +240,34 @@ export const RACES: Race[] = [
 ];
 
 // ===== Circuits =====
+const trackImg = (city: string) =>
+  `${F1_CDN}/c_fit,h_704/q_auto/v1740000000/common/f1/2026/track/2026track${city}detailed.webp`;
+
 export const CIRCUITS: Circuit[] = [
-  { round: 1, country: "호주", name: "Albert Park Circuit", gp: "호주 그랑프리", fullDate: "3월 8일 (일)", lengthKm: "5.278", laps: 58, corners: 14, lapRecord: "1:19.813", trackImageUrl: "https://media.formula1.com/image/upload/c_fit,h_704/q_auto/v1740000000/common/f1/2026/track/2026trackmelbournedetailed.webp" },
-  { round: 2, country: "중국", name: "Shanghai International", gp: "중국 그랑프리", fullDate: "3월 15일 (일)", lengthKm: "5.451", laps: 56, corners: 16 },
-  { round: 3, country: "일본", name: "Suzuka Circuit", gp: "일본 그랑프리", fullDate: "3월 29일 (일)", lengthKm: "5.807", laps: 53, corners: 18 },
-  { round: 4, country: "바레인", name: "Bahrain International", gp: "바레인 그랑프리", fullDate: "4월 12일 (일)", lengthKm: "5.412", laps: 57, corners: 15 },
-  { round: 5, country: "사우디아라비아", name: "Jeddah Corniche", gp: "사우디아라비아 그랑프리", fullDate: "4월 19일 (일)", lengthKm: "6.174", laps: 50, corners: 27 },
-  { round: 6, country: "마이애미", name: "Miami International", gp: "마이애미 그랑프리", fullDate: "5월 3일 (일)", lengthKm: "5.412", laps: 57, corners: 19 },
-  { round: 7, country: "캐나다", name: "Circuit Gilles Villeneuve", gp: "캐나다 그랑프리", fullDate: "5월 24일 (일)", lengthKm: "4.361", laps: 70, corners: 14 },
-  { round: 8, country: "모나코", name: "Circuit de Monaco", gp: "모나코 그랑프리", fullDate: "6월 7일 (일)", lengthKm: "3.337", laps: 78, corners: 19 },
-  { round: 9, country: "스페인", name: "Circuit de Barcelona-Catalunya", gp: "스페인 그랑프리", fullDate: "6월 14일 (일)", lengthKm: "4.657", laps: 66, corners: 16 },
-  { round: 10, country: "오스트리아", name: "Red Bull Ring", gp: "오스트리아 그랑프리", fullDate: "6월 28일 (일)", lengthKm: "4.318", laps: 71, corners: 10 },
-  { round: 11, country: "영국", name: "Silverstone Circuit", gp: "영국 그랑프리", fullDate: "7월 5일 (일)", lengthKm: "5.891", laps: 52, corners: 18 },
+  { round: 1, country: "호주", name: "Albert Park Circuit", gp: "호주 그랑프리", fullDate: "3월 8일 (일)", lengthKm: "5.278", laps: 58, corners: 14, lapRecord: "1:19.813", trackImageUrl: trackImg("melbourne") },
+  { round: 2, country: "중국", name: "Shanghai International", gp: "중국 그랑프리", fullDate: "3월 15일 (일)", lengthKm: "5.451", laps: 56, corners: 16, trackImageUrl: trackImg("shanghai") },
+  { round: 3, country: "일본", name: "Suzuka Circuit", gp: "일본 그랑프리", fullDate: "3월 29일 (일)", lengthKm: "5.807", laps: 53, corners: 18, trackImageUrl: trackImg("suzuka") },
+  { round: 4, country: "바레인", name: "Bahrain International", gp: "바레인 그랑프리", fullDate: "4월 12일 (일)", lengthKm: "5.412", laps: 57, corners: 15, trackImageUrl: trackImg("sakhir") },
+  { round: 5, country: "사우디아라비아", name: "Jeddah Corniche", gp: "사우디아라비아 그랑프리", fullDate: "4월 19일 (일)", lengthKm: "6.174", laps: 50, corners: 27, trackImageUrl: trackImg("jeddah") },
+  { round: 6, country: "마이애미", name: "Miami International", gp: "마이애미 그랑프리", fullDate: "5월 3일 (일)", lengthKm: "5.412", laps: 57, corners: 19, trackImageUrl: trackImg("miami") },
+  { round: 7, country: "캐나다", name: "Circuit Gilles Villeneuve", gp: "캐나다 그랑프리", fullDate: "5월 24일 (일)", lengthKm: "4.361", laps: 70, corners: 14, trackImageUrl: trackImg("montreal") },
+  { round: 8, country: "모나코", name: "Circuit de Monaco", gp: "모나코 그랑프리", fullDate: "6월 7일 (일)", lengthKm: "3.337", laps: 78, corners: 19, trackImageUrl: trackImg("montecarlo") },
+  { round: 9, country: "스페인", name: "Circuit de Barcelona-Catalunya", gp: "스페인 그랑프리", fullDate: "6월 14일 (일)", lengthKm: "4.657", laps: 66, corners: 16, trackImageUrl: trackImg("catalunya") },
+  { round: 10, country: "오스트리아", name: "Red Bull Ring", gp: "오스트리아 그랑프리", fullDate: "6월 28일 (일)", lengthKm: "4.318", laps: 71, corners: 10, trackImageUrl: trackImg("spielberg") },
+  { round: 11, country: "영국", name: "Silverstone Circuit", gp: "영국 그랑프리", fullDate: "7월 5일 (일)", lengthKm: "5.891", laps: 52, corners: 18, trackImageUrl: trackImg("silverstone") },
   { round: 12, country: "벨기에", name: "Spa-Francorchamps", gp: "벨기에 그랑프리", fullDate: "7월 19일 (일)", lengthKm: "7.004", laps: 44, corners: 19 },
-  { round: 13, country: "헝가리", name: "Hungaroring", gp: "헝가리 그랑프리", fullDate: "7월 26일 (일)", lengthKm: "4.381", laps: 70, corners: 14 },
-  { round: 14, country: "네덜란드", name: "Circuit Zandvoort", gp: "네덜란드 그랑프리", fullDate: "8월 23일 (일)", lengthKm: "4.259", laps: 72, corners: 14 },
-  { round: 15, country: "이탈리아", name: "Autodromo di Monza", gp: "이탈리아 그랑프리", fullDate: "9월 6일 (일)", lengthKm: "5.793", laps: 53, corners: 11 },
-  { round: 16, country: "마드리드", name: "Madrid Street Circuit", gp: "마드리드 그랑프리", fullDate: "9월 13일 (일)", lengthKm: "5.470", laps: 56, corners: 18 },
-  { round: 17, country: "아제르바이잔", name: "Baku City Circuit", gp: "아제르바이잔 그랑프리", fullDate: "9월 26일 (일)", lengthKm: "6.003", laps: 51, corners: 20 },
-  { round: 18, country: "싱가포르", name: "Marina Bay Street", gp: "싱가포르 그랑프리", fullDate: "10월 11일 (일)", lengthKm: "4.940", laps: 62, corners: 23 },
-  { round: 19, country: "미국", name: "COTA", gp: "미국 그랑프리", fullDate: "10월 25일 (일)", lengthKm: "5.513", laps: 56, corners: 20 },
-  { round: 20, country: "멕시코", name: "Autodromo Hermanos Rodriguez", gp: "멕시코 그랑프리", fullDate: "11월 1일 (일)", lengthKm: "4.304", laps: 71, corners: 17 },
-  { round: 21, country: "브라질", name: "Interlagos", gp: "브라질 그랑프리", fullDate: "11월 8일 (일)", lengthKm: "4.309", laps: 71, corners: 15 },
-  { round: 22, country: "라스베가스", name: "Las Vegas Strip", gp: "라스베가스 그랑프리", fullDate: "11월 21일 (일)", lengthKm: "6.201", laps: 50, corners: 17 },
-  { round: 23, country: "카타르", name: "Lusail International", gp: "카타르 그랑프리", fullDate: "11월 29일 (일)", lengthKm: "5.419", laps: 57, corners: 16 },
-  { round: 24, country: "아부다비", name: "Yas Marina Circuit", gp: "아부다비 그랑프리", fullDate: "12월 6일 (일)", lengthKm: "5.281", laps: 58, corners: 16 },
+  { round: 13, country: "헝가리", name: "Hungaroring", gp: "헝가리 그랑프리", fullDate: "7월 26일 (일)", lengthKm: "4.381", laps: 70, corners: 14, trackImageUrl: trackImg("hungaroring") },
+  { round: 14, country: "네덜란드", name: "Circuit Zandvoort", gp: "네덜란드 그랑프리", fullDate: "8월 23일 (일)", lengthKm: "4.259", laps: 72, corners: 14, trackImageUrl: trackImg("zandvoort") },
+  { round: 15, country: "이탈리아", name: "Autodromo di Monza", gp: "이탈리아 그랑프리", fullDate: "9월 6일 (일)", lengthKm: "5.793", laps: 53, corners: 11, trackImageUrl: trackImg("monza") },
+  { round: 16, country: "마드리드", name: "Madrid Street Circuit", gp: "마드리드 그랑프리", fullDate: "9월 13일 (일)", lengthKm: "5.470", laps: 56, corners: 18, trackImageUrl: trackImg("madrid") },
+  { round: 17, country: "아제르바이잔", name: "Baku City Circuit", gp: "아제르바이잔 그랑프리", fullDate: "9월 26일 (일)", lengthKm: "6.003", laps: 51, corners: 20, trackImageUrl: trackImg("baku") },
+  { round: 18, country: "싱가포르", name: "Marina Bay Street", gp: "싱가포르 그랑프리", fullDate: "10월 11일 (일)", lengthKm: "4.940", laps: 62, corners: 23, trackImageUrl: trackImg("singapore") },
+  { round: 19, country: "미국", name: "COTA", gp: "미국 그랑프리", fullDate: "10월 25일 (일)", lengthKm: "5.513", laps: 56, corners: 20, trackImageUrl: trackImg("austin") },
+  { round: 20, country: "멕시코", name: "Autodromo Hermanos Rodriguez", gp: "멕시코 그랑프리", fullDate: "11월 1일 (일)", lengthKm: "4.304", laps: 71, corners: 17, trackImageUrl: trackImg("mexicocity") },
+  { round: 21, country: "브라질", name: "Interlagos", gp: "브라질 그랑프리", fullDate: "11월 8일 (일)", lengthKm: "4.309", laps: 71, corners: 15, trackImageUrl: trackImg("interlagos") },
+  { round: 22, country: "라스베가스", name: "Las Vegas Strip", gp: "라스베가스 그랑프리", fullDate: "11월 21일 (일)", lengthKm: "6.201", laps: 50, corners: 17, trackImageUrl: trackImg("lasvegas") },
+  { round: 23, country: "카타르", name: "Lusail International", gp: "카타르 그랑프리", fullDate: "11월 29일 (일)", lengthKm: "5.419", laps: 57, corners: 16, trackImageUrl: trackImg("lusail") },
+  { round: 24, country: "아부다비", name: "Yas Marina Circuit", gp: "아부다비 그랑프리", fullDate: "12월 6일 (일)", lengthKm: "5.281", laps: 58, corners: 16, trackImageUrl: trackImg("yasmarina") },
 ];
 
 // ===== Helpers =====

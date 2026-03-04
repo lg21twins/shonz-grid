@@ -76,9 +76,9 @@ export async function GET(request: NextRequest) {
           published: true,
         });
 
-        // 9. Add body paragraphs + source link as blocks
+        // 9. Add body paragraphs as blocks
         if (content.body.length > 0) {
-          await addArticleBody(pageId, content.body, item.link);
+          await addArticleBody(pageId, content.body);
         }
 
         // Mark as processed to avoid duplicates within same batch

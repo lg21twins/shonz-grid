@@ -1,8 +1,10 @@
-import { getArticles, getArticlesByKeywords } from "@/lib/notion";
+import { getArticles, getArticlesByKeywords, getSnsClips, getStandings } from "@/lib/notion";
 import {
   DRIVERS,
   CONSTRUCTORS,
   TEAM_COLORS,
+  DRIVER_ID_MAP,
+  CONSTRUCTOR_ID_MAP,
   getNextRace,
   getDaysUntilRace,
 } from "@/data/f1-2026";
@@ -15,11 +17,14 @@ export default async function Home() {
   const nextRace = getNextRace();
   const daysUntil = getDaysUntilRace();
 
-  // Fetch articles in parallel
-  const [articles, techArticles, gpArticlesRaw] = await Promise.all([
+  // Fetch articles + standings in parallel
+  const [articles, techArticles, gpArticlesRaw, snsClips, driverStandings, constructorStandings] = await Promise.all([
     getArticles(undefined, 10),
     getArticles("기술 해설", 3),
     getArticlesByKeywords(RACE_KEYWORDS[nextRace.round] ?? [], 4),
+    getSnsClips(10),
+    getStandings("driver"),
+    getStandings("constructor"),
   ]);
 
   // Headline (first article)
@@ -43,18 +48,22 @@ export default async function Home() {
     thumbnail: a.thumbnail,
   }));
 
+  // Tech articles — exclude headline to avoid duplication
+  const headlineSlug = articles[0]?.slug;
+  const techFiltered = techArticles.filter((a) => a.slug !== headlineSlug);
+
   // Tech featured (first tech article)
-  const techFeatured = techArticles[0]
+  const techFeatured = techFiltered[0]
     ? {
-        slug: techArticles[0].slug,
-        title: techArticles[0].title,
-        description: techArticles[0].description,
-        thumbnail: techArticles[0].thumbnail,
+        slug: techFiltered[0].slug,
+        title: techFiltered[0].title,
+        description: techFiltered[0].description,
+        thumbnail: techFiltered[0].thumbnail,
       }
     : null;
 
   // Tech more (next 2 tech articles)
-  const techMore = techArticles.slice(1, 3).map((a) => ({
+  const techMore = techFiltered.slice(1, 3).map((a) => ({
     slug: a.slug,
     title: a.title,
     description: a.description,
@@ -84,6 +93,27 @@ export default async function Home() {
     sessions: nextRace.sessions,
   };
 
+  // Merge standings with static data
+  let mergedDrivers = [...DRIVERS];
+  if (driverStandings.length > 0) {
+    const map = new Map(driverStandings.map((s) => [s.driverId, s]));
+    mergedDrivers = DRIVERS.map((d) => {
+      const id = Object.entries(DRIVER_ID_MAP).find(([, name]) => name === d.name)?.[0];
+      const s = id ? map.get(id) : undefined;
+      return s ? { ...d, pos: s.position, points: s.points } : d;
+    }).sort((a, b) => a.pos - b.pos);
+  }
+
+  let mergedConstructors = [...CONSTRUCTORS];
+  if (constructorStandings.length > 0) {
+    const map = new Map(constructorStandings.map((s) => [s.driverId, s]));
+    mergedConstructors = CONSTRUCTORS.map((c) => {
+      const id = Object.entries(CONSTRUCTOR_ID_MAP).find(([, tid]) => tid === c.teamId)?.[0];
+      const s = id ? map.get(id) : undefined;
+      return s ? { ...c, pos: s.position, points: s.points } : c;
+    }).sort((a, b) => a.pos - b.pos);
+  }
+
   return (
     <HomeClient
       headline={headline}
@@ -92,8 +122,9 @@ export default async function Home() {
       raceSchedule={raceSchedule}
       techFeatured={techFeatured}
       techMore={techMore}
-      drivers={DRIVERS.slice(0, 5)}
-      constructors={CONSTRUCTORS.slice(0, 5)}
+      snsClips={snsClips}
+      drivers={mergedDrivers.slice(0, 5)}
+      constructors={mergedConstructors.slice(0, 5)}
       teamColors={TEAM_COLORS}
     />
   );

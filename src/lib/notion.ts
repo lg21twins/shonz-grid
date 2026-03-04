@@ -10,24 +10,25 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN ?? "";
 const notion = new Client({ auth: NOTION_TOKEN });
 
 const ARTICLES_DB = process.env.NOTION_ARTICLES_DB ?? "";
+const SNS_DB = process.env.NOTION_SNS_DB ?? "";
+const STANDINGS_DB = process.env.NOTION_STANDINGS_DB ?? "";
 
 /* ── Direct REST helper (SDK dataSources.query uses wrong endpoint) ── */
-async function queryDatabase(body: Record<string, unknown>) {
-  const res = await fetch(
-    `https://api.notion.com/v1/databases/${ARTICLES_DB}/query`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${NOTION_TOKEN}`,
-        "Notion-Version": "2022-06-28",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      next: { revalidate: 300 },
+function queryDb(dbId: string, body: Record<string, unknown>) {
+  return fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${NOTION_TOKEN}`,
+      "Notion-Version": "2022-06-28",
+      "Content-Type": "application/json",
     },
-  );
-  if (!res.ok) return { results: [] };
-  return res.json();
+    body: JSON.stringify(body),
+    next: { revalidate: 300 },
+  }).then((res) => (res.ok ? res.json() : { results: [] }));
+}
+
+async function queryDatabase(body: Record<string, unknown>) {
+  return queryDb(ARTICLES_DB, body);
 }
 
 /* ── Types ── */
@@ -344,7 +345,6 @@ export async function createArticle(article: {
 export async function addArticleBody(
   pageId: string,
   paragraphs: string[],
-  sourceUrl?: string,
 ): Promise<void> {
   const children: Parameters<
     typeof notion.blocks.children.append
@@ -356,25 +356,205 @@ export async function addArticleBody(
     },
   }));
 
-  // Add source link at the end
-  if (sourceUrl) {
-    children.push({
-      object: "block",
-      type: "paragraph",
-      paragraph: {
-        rich_text: [
-          { type: "text", text: { content: "원본 기사: " } },
-          {
-            type: "text",
-            text: { content: sourceUrl, link: { url: sourceUrl } },
-          },
-        ],
-      },
-    });
-  }
-
   await notion.blocks.children.append({
     block_id: pageId,
     children,
   });
+}
+
+/* ── SNS Hot Clips ── */
+export interface SnsClip {
+  id: string;
+  title: string;
+  platform: string;
+  handle: string;
+  url: string;
+  thumbnail: string;
+}
+
+export async function getSnsClips(limit = 10): Promise<SnsClip[]> {
+  if (!SNS_DB) return [];
+
+  const response = await queryDb(SNS_DB, {
+    filter: { property: "게시", checkbox: { equals: true } },
+    sorts: [{ property: "날짜", direction: "descending" }],
+    page_size: limit,
+  });
+
+  return (response.results as PageObjectResponse[])
+    .filter((p) => "properties" in p)
+    .map((page) => {
+      const props = page.properties;
+
+      const titleProp = props["제목"] ?? props["Title"];
+      const title =
+        titleProp?.type === "title" ? richTextToPlain(titleProp.title) : "";
+
+      const platformProp = props["플랫폼"];
+      const platform =
+        platformProp?.type === "select"
+          ? (platformProp.select?.name ?? "")
+          : "";
+
+      const handleProp = props["핸들"];
+      const handle =
+        handleProp?.type === "rich_text"
+          ? richTextToPlain(handleProp.rich_text)
+          : "";
+
+      const urlProp = props["URL"] ?? props["url"];
+      const url = urlProp?.type === "url" ? (urlProp.url ?? "") : "";
+
+      const thumbProp = props["썸네일"] ?? props["Thumbnail"];
+      const thumbnail =
+        thumbProp?.type === "url" ? (thumbProp.url ?? "") : "";
+
+      return { id: page.id, title, platform, handle, url, thumbnail };
+    });
+}
+
+/* ── Get recent SNS clip URLs for deduplication ── */
+export async function getRecentSnsUrls(): Promise<Set<string>> {
+  if (!SNS_DB) return new Set();
+
+  const response = await queryDb(SNS_DB, {
+    sorts: [{ property: "날짜", direction: "descending" }],
+    page_size: 50,
+  });
+
+  const urls = new Set<string>();
+  for (const page of response.results as PageObjectResponse[]) {
+    if (!("properties" in page)) continue;
+    const urlProp = page.properties["URL"] ?? page.properties["url"];
+    if (urlProp?.type === "url" && urlProp.url) {
+      urls.add(urlProp.url);
+    }
+  }
+  return urls;
+}
+
+/* ── Create SNS clip in Notion ── */
+export async function createSnsClip(clip: {
+  title: string;
+  platform: string;
+  handle: string;
+  url: string;
+  thumbnail: string;
+  date: string;
+}): Promise<string> {
+  const response = await notion.pages.create({
+    parent: { database_id: SNS_DB },
+    properties: {
+      "제목": { title: [{ text: { content: clip.title } }] },
+      "플랫폼": { select: { name: clip.platform } },
+      "핸들": { rich_text: [{ text: { content: clip.handle } }] },
+      "URL": { url: clip.url },
+      "썸네일": { url: clip.thumbnail || null },
+      "날짜": { date: { start: clip.date } },
+      "게시": { checkbox: true },
+    },
+  });
+  return response.id;
+}
+
+/* ── F1 Standings ── */
+export interface StandingsEntry {
+  driverId: string;
+  type: "driver" | "constructor";
+  position: number;
+  points: number;
+  wins: number;
+  season: string;
+  round: number;
+}
+
+export async function getStandings(
+  type: "driver" | "constructor",
+  season = "2026",
+): Promise<StandingsEntry[]> {
+  if (!STANDINGS_DB) return [];
+
+  const response = await queryDb(STANDINGS_DB, {
+    filter: {
+      and: [
+        { property: "타입", select: { equals: type } },
+        { property: "시즌", rich_text: { equals: season } },
+      ],
+    },
+    sorts: [{ property: "순위", direction: "ascending" }],
+    page_size: 30,
+  });
+
+  return (response.results as PageObjectResponse[])
+    .filter((p) => "properties" in p)
+    .map((page) => {
+      const props = page.properties;
+
+      const idProp = props["드라이버ID"];
+      const driverId = idProp?.type === "rich_text" ? richTextToPlain(idProp.rich_text) : "";
+
+      const typeProp = props["타입"];
+      const entryType = typeProp?.type === "select"
+        ? (typeProp.select?.name as "driver" | "constructor") : type;
+
+      const posProp = props["순위"];
+      const position = posProp?.type === "number" ? (posProp.number ?? 0) : 0;
+
+      const ptsProp = props["포인트"];
+      const points = ptsProp?.type === "number" ? (ptsProp.number ?? 0) : 0;
+
+      const winsProp = props["승수"];
+      const wins = winsProp?.type === "number" ? (winsProp.number ?? 0) : 0;
+
+      const roundProp = props["라운드"];
+      const round = roundProp?.type === "number" ? (roundProp.number ?? 0) : 0;
+
+      return { driverId, type: entryType, position, points, wins, season, round };
+    });
+}
+
+export async function upsertStanding(entry: StandingsEntry): Promise<void> {
+  if (!STANDINGS_DB) return;
+
+  const existing = await queryDb(STANDINGS_DB, {
+    filter: {
+      and: [
+        { property: "드라이버ID", rich_text: { equals: entry.driverId } },
+        { property: "타입", select: { equals: entry.type } },
+        { property: "시즌", rich_text: { equals: entry.season } },
+      ],
+    },
+    page_size: 1,
+  });
+
+  const now = new Date().toISOString().split("T")[0];
+
+  if (existing.results.length > 0) {
+    const pageId = existing.results[0].id;
+    await notion.pages.update({
+      page_id: pageId,
+      properties: {
+        "순위": { number: entry.position },
+        "포인트": { number: entry.points },
+        "승수": { number: entry.wins },
+        "라운드": { number: entry.round },
+        "마지막업데이트": { date: { start: now } },
+      },
+    });
+  } else {
+    await notion.pages.create({
+      parent: { database_id: STANDINGS_DB },
+      properties: {
+        "이름": { title: [{ text: { content: entry.driverId } }] },
+        "타입": { select: { name: entry.type } },
+        "드라이버ID": { rich_text: [{ text: { content: entry.driverId } }] },
+        "순위": { number: entry.position },
+        "포인트": { number: entry.points },
+        "승수": { number: entry.wins },
+        "시즌": { rich_text: [{ text: { content: entry.season } }] },
+        "라운드": { number: entry.round },
+        "마지막업데이트": { date: { start: now } },
+      },
+    });
+  }
 }

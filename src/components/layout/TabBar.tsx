@@ -7,7 +7,7 @@ const TAB_ITEMS = [
   { href: "/", label: "홈", icon: "home" },
   { href: "/news", label: "뉴스", icon: "news" },
   { href: "/data", label: "데이터", icon: "data" },
-  { href: "/guide", label: "가이드", icon: "guide" },
+  { href: "/archive", label: "아카이브", icon: "archive" },
   { href: "/my", label: "MY", icon: "my" },
 ];
 
@@ -33,7 +33,7 @@ function TabIcon({ icon, active }: { icon: string; active: boolean }) {
           <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
         </svg>
       );
-    case "guide":
+    case "archive":
       return (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" /><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />

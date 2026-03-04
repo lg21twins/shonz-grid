@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
 import { Footer } from "@/components/layout/Footer";
@@ -17,6 +18,13 @@ export type NewsItem = {
   desc: string;
   time: string;
   source: string;
+  thumbnail: string;
+};
+
+export type TechArticle = {
+  slug: string;
+  title: string;
+  description: string;
   thumbnail: string;
 };
 
@@ -52,13 +60,8 @@ interface Props {
     time: string;
     thumbnail: string;
   };
-  editorPicks: {
-    slug: string;
-    cat: string;
-    title: string;
-    meta: string;
-    thumbnail: string;
-  }[];
+  techFeatured: TechArticle | null;
+  techMore: TechArticle[];
   newsItems: NewsItem[];
   gpData: {
     flag: string;
@@ -66,10 +69,13 @@ interface Props {
     fullDate: string;
     articles: { slug: string; title: string; source: string; date: string; thumbnail: string }[];
   };
+  snsClips: { id: string; title: string; platform: string; handle: string; url: string; thumbnail: string }[];
 }
 
-export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Props) {
-  const [activeCat, setActiveCat] = useState<Category>("all");
+export function NewsPageClient({ featured, techFeatured, techMore, newsItems, gpData, snsClips }: Props) {
+  const searchParams = useSearchParams();
+  const initialCat = (searchParams.get("cat") as Category) || "all";
+  const [activeCat, setActiveCat] = useState<Category>(initialCat);
   const [search, setSearch] = useState("");
   const saveScroll = useScrollRestore("news-scroll");
 
@@ -87,6 +93,12 @@ export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Pro
       <Navbar />
 
       <main className="mx-auto max-w-[960px] px-5 max-md:px-3.5 pt-5 max-md:pt-3.5 pb-20 md:pb-5 flex flex-col gap-3 max-md:gap-2.5">
+        {/* Page Title */}
+        <div className="px-0.5 pt-1">
+          <h1 className="text-[24px] font-black text-t1">뉴스</h1>
+          <p className="text-[13px] text-t3 mt-0.5">F1 최신 소식과 분석</p>
+        </div>
+
         {/* 1. FEATURED NEWS */}
         <Link href={`/news/${featured.slug}`} onClick={saveScroll}>
           <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
@@ -119,48 +131,127 @@ export function NewsPageClient({ featured, editorPicks, newsItems, gpData }: Pro
         {/* GP ARTICLE COLLECTION */}
         <NextGPArticles {...gpData} />
 
-        {/* 2. EDITOR'S PICK */}
-        <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
-          <div className="mb-4">
-            <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">
-              에디터 픽
-            </h2>
-            <p className="text-[12px] text-t4 mt-0.5">오늘의 추천 기사</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 max-md:gap-2">
-            {editorPicks.map((pick, i) => (
-              <Link key={i} href={`/news/${pick.slug}`} onClick={saveScroll}>
-                <div className="bg-bg2 rounded-[12px] overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-transform">
-                  {pick.thumbnail ? (
-                    <img
-                      src={pick.thumbnail}
-                      alt={pick.title}
-                      className="w-full aspect-[16/10] object-cover"
-                    />
-                  ) : (
-                    <div
-                      className={`w-full aspect-[16/10] bg-gradient-to-br ${GRADIENTS[i % GRADIENTS.length]}`}
-                    />
-                  )}
-                  <div className="p-2.5 max-md:p-2">
-                    <p className="text-[11px] font-medium text-t4 mb-1">
-                      {pick.cat}
-                    </p>
-                    <p className="text-[14px] max-md:text-[12px] font-bold text-t1 leading-[1.3] mb-1.5 max-md:mb-1 line-clamp-2">
-                      {pick.title}
-                    </p>
-                    <p className="text-[11px] max-md:text-[10px] text-t4">
-                      {pick.meta}
-                    </p>
+        {/* 2. TECH ANALYSIS */}
+        {(techFeatured || techMore.length > 0) && (
+          <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
+            <div className="flex items-center justify-between p-5 max-md:p-4 pb-0 max-md:pb-0">
+              <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">기술 해설</h2>
+            </div>
+
+            {techFeatured && (
+              <Link href={`/news/${techFeatured.slug}`} onClick={saveScroll}>
+                <div className="px-5 max-md:px-4 pt-4">
+                  <div className="rounded-[12px] overflow-hidden">
+                    {techFeatured.thumbnail ? (
+                      <img
+                        src={techFeatured.thumbnail}
+                        alt={techFeatured.title}
+                        className="w-full aspect-[16/9] object-cover"
+                      />
+                    ) : (
+                      <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#1a1a3e] to-[#2d2d5e]" />
+                    )}
                   </div>
+                  <h3 className="text-[16px] max-md:text-[15px] font-bold text-t1 leading-[1.3] mt-3 mb-1">
+                    {techFeatured.title}
+                  </h3>
+                  <p className="text-[14px] text-t2 leading-[1.4] line-clamp-2">
+                    {techFeatured.description}
+                  </p>
                 </div>
               </Link>
+            )}
+
+            {techMore.length > 0 && (
+              <div className="px-5 max-md:px-4 pt-3 pb-5 max-md:pb-4">
+                {techMore.map((item, i) => (
+                  <Link key={item.slug} href={`/news/${item.slug}`} onClick={saveScroll}>
+                    <div
+                      className={`flex gap-3 py-3.5 ${i === 0 && techFeatured ? "border-t border-bdr pt-3.5" : ""} ${i < techMore.length - 1 ? "border-b border-bdr" : "pb-0"}`}
+                    >
+                      {item.thumbnail ? (
+                        <img
+                          src={item.thumbnail}
+                          alt={item.title}
+                          className="w-20 h-[60px] shrink-0 rounded-[8px] object-cover"
+                        />
+                      ) : (
+                        <div className="w-20 h-[60px] shrink-0 rounded-[8px] bg-gradient-to-br from-[#333] to-[#555]" />
+                      )}
+                      <div className="flex-1 flex flex-col justify-center min-w-0">
+                        <p className="text-[14px] font-semibold text-t1 leading-[1.3]">{item.title}</p>
+                        <p className="text-[12px] text-t3 mt-0.5 truncate">{item.description}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* SNS HOT CLIP */}
+        <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">SNS 핫클립</h2>
+            <a
+              href="https://www.instagram.com/shonz_mag"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] font-medium text-t3"
+            >
+              전체 보기 ›
+            </a>
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-5 px-5 max-md:-mx-4 max-md:px-4 scrollbar-hide">
+            {(snsClips.length > 0
+              ? snsClips.map((clip) => ({
+                  key: clip.id,
+                  platform: clip.platform,
+                  handle: clip.handle,
+                  title: clip.title,
+                  url: clip.url,
+                  thumbnail: clip.thumbnail,
+                }))
+              : [
+                  { key: "ig-shonz", platform: "Instagram", handle: "@shonz_mag", title: "SHONZ MAG 공식 인스타그램", url: "https://www.instagram.com/shonz_mag", thumbnail: "" },
+                  { key: "ig-f1", platform: "Instagram", handle: "@f1", title: "Formula 1 공식 인스타그램", url: "https://www.instagram.com/f1", thumbnail: "" },
+                  { key: "x-f1", platform: "X", handle: "@F1", title: "Formula 1 공식 X", url: "https://x.com/F1", thumbnail: "" },
+                  { key: "yt-f1", platform: "YouTube", handle: "Formula 1", title: "Formula 1 공식 유튜브", url: "https://www.youtube.com/@Formula1", thumbnail: "" },
+                  { key: "tt-f1", platform: "TikTok", handle: "@f1", title: "Formula 1 공식 틱톡", url: "https://www.tiktok.com/@f1", thumbnail: "" },
+                ]
+            ).map((clip) => (
+              <a
+                key={clip.key}
+                href={clip.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 w-40 max-md:w-[140px] bg-bg2 rounded-[12px] overflow-hidden hover:-translate-y-0.5 transition-transform"
+              >
+                {clip.thumbnail ? (
+                  <img
+                    src={clip.thumbnail}
+                    alt={clip.title}
+                    className="w-full aspect-square object-cover"
+                  />
+                ) : (
+                  <div className="w-full aspect-square bg-gradient-to-br from-[#222] to-[#444] flex items-center justify-center">
+                    <span className="text-[24px] text-t3">
+                      {clip.platform === "YouTube" ? "▶" : clip.platform === "TikTok" ? "♪" : "📸"}
+                    </span>
+                  </div>
+                )}
+                <div className="p-2 px-2.5">
+                  <p className="text-[10px] font-semibold text-t3 mb-0.5">{clip.platform} · {clip.handle}</p>
+                  <p className="text-[12px] font-semibold text-t1 leading-[1.3] line-clamp-2">{clip.title}</p>
+                </div>
+              </a>
             ))}
           </div>
         </section>
 
         {/* 3. LATEST NEWS */}
-        <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
+        <section id="latest" className="scroll-mt-[72px] max-md:scroll-mt-[64px] bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">
               최신 뉴스

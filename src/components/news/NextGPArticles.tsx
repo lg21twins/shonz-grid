@@ -20,14 +20,11 @@ export function NextGPArticles({ flag, gp, fullDate, articles }: Props) {
 
   return (
     <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
-      <div className="flex items-center gap-2.5 mb-4">
-        <span className="text-[24px]">{flag}</span>
-        <div>
-          <h2 className="text-[16px] max-md:text-[15px] font-extrabold text-t1">
-            {gp} 기사 모음
-          </h2>
-          <p className="text-[12px] text-t4">{fullDate}</p>
-        </div>
+      <div className="mb-4">
+        <h2 className="text-[16px] max-md:text-[15px] font-extrabold text-t1">
+          {gp} 기사 모음
+        </h2>
+        <p className="text-[12px] text-t4 mt-0.5">{fullDate}</p>
       </div>
       {articles.map((article, i) => (
         <Link key={article.slug} href={`/news/${article.slug}`}>

@@ -49,6 +49,15 @@ interface RaceSchedule {
   sessions: RaceSession[];
 }
 
+interface SnsClip {
+  id: string;
+  title: string;
+  platform: string;
+  handle: string;
+  url: string;
+  thumbnail: string;
+}
+
 interface Props {
   headline: HeadlineArticle | null;
   briefing: BriefingArticle[];
@@ -56,6 +65,7 @@ interface Props {
   raceSchedule: RaceSchedule;
   techFeatured: TechArticle | null;
   techMore: TechArticle[];
+  snsClips: SnsClip[];
   drivers: Driver[];
   constructors: Constructor[];
   teamColors: Record<string, string>;
@@ -70,6 +80,7 @@ export function HomeClient({
   raceSchedule,
   techFeatured,
   techMore,
+  snsClips,
   drivers,
   constructors,
   teamColors,
@@ -103,7 +114,7 @@ export function HomeClient({
                 <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#333] to-[#555]" />
               )}
               <div className="p-5 max-md:p-4">
-                <h2 className="text-[17px] max-md:text-[16px] font-extrabold text-t1 leading-[1.3] mb-2">
+                <h2 className="text-[18px] max-md:text-[16px] font-extrabold text-t1 leading-[1.3] mb-2">
                   {headline.title}
                 </h2>
                 <p className="text-[14px] text-t2 leading-[1.4] mb-3 line-clamp-2">
@@ -117,7 +128,7 @@ export function HomeClient({
           <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
             <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#333] to-[#555]" />
             <div className="p-5 max-md:p-4">
-              <h2 className="text-[17px] max-md:text-[16px] font-extrabold text-t1 leading-[1.3] mb-2">
+              <h2 className="text-[18px] max-md:text-[16px] font-extrabold text-t1 leading-[1.3] mb-2">
                 기사를 불러오는 중...
               </h2>
             </div>
@@ -128,7 +139,7 @@ export function HomeClient({
         <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">데일리 브리핑</h2>
-            <Link href="/news" className="text-[13px] font-medium text-t3">전체 보기 ›</Link>
+            <Link href="/news#latest" className="text-[13px] font-medium text-t3">전체 보기 ›</Link>
           </div>
           {briefing.map((item, i) => (
             <Link key={item.slug} href={`/news/${item.slug}`} onClick={saveScroll}>
@@ -161,7 +172,7 @@ export function HomeClient({
         <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1">
-              <h2 className="text-[16px] max-md:text-[15px] font-extrabold text-t1 mb-0.5">
+              <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1 mb-0.5">
                 {raceSchedule.gp}
               </h2>
               <p className="text-[13px] text-t3">
@@ -185,63 +196,65 @@ export function HomeClient({
           ))}
         </section>
 
-        {/* 4. TECH ANALYSIS — Featured */}
-        {techFeatured && (
-          <Link href={`/news/${techFeatured.slug}`} onClick={saveScroll}>
-            <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
-              {techFeatured.thumbnail ? (
-                <img
-                  src={techFeatured.thumbnail}
-                  alt={techFeatured.title}
-                  className="w-full aspect-[16/9] object-cover"
-                />
-              ) : (
-                <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#1a1a3e] to-[#2d2d5e]" />
-              )}
-              <div className="p-5 max-md:p-4">
-                <span className="inline-block text-[11px] font-semibold px-2 py-[3px] rounded-[6px] bg-[rgba(49,130,246,0.1)] text-f1-blue mb-2">
-                  기술 해설
-                </span>
-                <h3 className="text-[16px] max-md:text-[15px] font-bold text-t1 leading-[1.3] mb-2">
-                  {techFeatured.title}
-                </h3>
-                <p className="text-[14px] text-t2 leading-[1.4] line-clamp-2">
-                  {techFeatured.description}
-                </p>
-              </div>
-            </section>
-          </Link>
-        )}
-
-        {/* 4b. TECH — More articles */}
-        {techMore.length > 0 && (
-          <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
-            <div className="flex items-center justify-between mb-4">
+        {/* 4. TECH ANALYSIS */}
+        {(techFeatured || techMore.length > 0) && (
+          <section className="bg-card rounded-[16px] max-md:rounded-[14px] overflow-hidden">
+            <div className="flex items-center justify-between px-5 max-md:px-4 pt-5 max-md:pt-4">
               <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">기술 해설</h2>
-              <Link href="/news" className="text-[13px] font-medium text-t3">전체 보기 ›</Link>
+              <Link href="/news?cat=tech" className="text-[13px] font-medium text-t3">전체 보기 ›</Link>
             </div>
-            {techMore.map((item, i) => (
-              <Link key={item.slug} href={`/news/${item.slug}`} onClick={saveScroll}>
-                <div
-                  className={`flex gap-3 py-3.5 ${i === 0 ? "pt-0" : ""} ${i < techMore.length - 1 ? "border-b border-bdr" : "pb-0"}`}
-                >
-                  {item.thumbnail ? (
-                    <img
-                      src={item.thumbnail}
-                      alt={item.title}
-                      className="w-20 h-[60px] shrink-0 rounded-[8px] object-cover"
-                    />
-                  ) : (
-                    <div className="w-20 h-[60px] shrink-0 rounded-[8px] bg-gradient-to-br from-[#333] to-[#555]" />
-                  )}
-                  <div className="flex-1 flex flex-col justify-center min-w-0">
-                    <p className="text-[11px] font-semibold text-t3 mb-0.5">[기술 해설]</p>
-                    <p className="text-[14px] font-semibold text-t1 leading-[1.3]">{item.title}</p>
-                    <p className="text-[12px] text-t3 mt-0.5 truncate">{item.description}</p>
+
+            {/* Featured */}
+            {techFeatured && (
+              <Link href={`/news/${techFeatured.slug}`} onClick={saveScroll}>
+                <div className="px-5 max-md:px-4 pt-4">
+                  <div className="rounded-[12px] overflow-hidden">
+                    {techFeatured.thumbnail ? (
+                      <img
+                        src={techFeatured.thumbnail}
+                        alt={techFeatured.title}
+                        className="w-full aspect-[16/9] object-cover"
+                      />
+                    ) : (
+                      <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#1a1a3e] to-[#2d2d5e]" />
+                    )}
                   </div>
+                  <h3 className="text-[16px] max-md:text-[15px] font-bold text-t1 leading-[1.3] mt-3 mb-1">
+                    {techFeatured.title}
+                  </h3>
+                  <p className="text-[14px] text-t2 leading-[1.4] line-clamp-2">
+                    {techFeatured.description}
+                  </p>
                 </div>
               </Link>
-            ))}
+            )}
+
+            {/* More articles */}
+            {techMore.length > 0 && (
+              <div className="px-5 max-md:px-4 pt-3 pb-5 max-md:pb-4">
+                {techMore.map((item, i) => (
+                  <Link key={item.slug} href={`/news/${item.slug}`} onClick={saveScroll}>
+                    <div
+                      className={`flex gap-3 py-3.5 ${i === 0 ? "border-t border-bdr pt-3.5" : ""} ${i < techMore.length - 1 ? "border-b border-bdr" : "pb-0"}`}
+                    >
+                      {item.thumbnail ? (
+                        <img
+                          src={item.thumbnail}
+                          alt={item.title}
+                          className="w-20 h-[60px] shrink-0 rounded-[8px] object-cover"
+                        />
+                      ) : (
+                        <div className="w-20 h-[60px] shrink-0 rounded-[8px] bg-gradient-to-br from-[#333] to-[#555]" />
+                      )}
+                      <div className="flex-1 flex flex-col justify-center min-w-0">
+                        <p className="text-[14px] font-semibold text-t1 leading-[1.3]">{item.title}</p>
+                        <p className="text-[12px] text-t3 mt-0.5 truncate">{item.description}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
@@ -249,31 +262,58 @@ export function HomeClient({
         <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">SNS 핫클립</h2>
-            <span className="text-[13px] font-medium text-t3 cursor-pointer">전체 보기 ›</span>
+            <a
+              href="https://www.instagram.com/shonz_mag"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] font-medium text-t3"
+            >
+              전체 보기 ›
+            </a>
           </div>
           <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-5 px-5 max-md:-mx-4 max-md:px-4 scrollbar-hide">
-            {[
-              { platform: "Instagram · @shonzmag", title: "2026 프리시즌 테스트 하이라이트 총정리", meta: "1.2만 좋아요 · 1시간 전" },
-              { platform: "Instagram · @f1", title: "노리스, MCL61 첫 시운전 비하인드", meta: "24만 좋아요 · 3시간 전" },
-              { platform: "X · @ScuderiaFerrari", title: "해밀턴 페라리 슈트 핏팅 현장", meta: "18만 좋아요 · 5시간 전" },
-              { platform: "YouTube · F1", title: "2026 규정 설명: 90초 요약", meta: "52만 조회 · 1일 전" },
-              { platform: "TikTok · @f1", title: "카딜락 F1 팀 공장 최초 공개", meta: "89만 조회 · 2일 전" },
-            ].map((clip, i) => (
-              <div
-                key={i}
-                className="shrink-0 w-40 max-md:w-[140px] bg-bg2 rounded-[12px] overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-transform"
+            {(snsClips.length > 0
+              ? snsClips.map((clip) => ({
+                  key: clip.id,
+                  platform: clip.platform,
+                  handle: clip.handle,
+                  title: clip.title,
+                  url: clip.url,
+                  thumbnail: clip.thumbnail,
+                }))
+              : [
+                  { key: "ig-shonz", platform: "Instagram", handle: "@shonz_mag", title: "SHONZ MAG 공식 인스타그램", url: "https://www.instagram.com/shonz_mag", thumbnail: "" },
+                  { key: "ig-f1", platform: "Instagram", handle: "@f1", title: "Formula 1 공식 인스타그램", url: "https://www.instagram.com/f1", thumbnail: "" },
+                  { key: "x-f1", platform: "X", handle: "@F1", title: "Formula 1 공식 X", url: "https://x.com/F1", thumbnail: "" },
+                  { key: "yt-f1", platform: "YouTube", handle: "Formula 1", title: "Formula 1 공식 유튜브", url: "https://www.youtube.com/@Formula1", thumbnail: "" },
+                  { key: "tt-f1", platform: "TikTok", handle: "@f1", title: "Formula 1 공식 틱톡", url: "https://www.tiktok.com/@f1", thumbnail: "" },
+                ]
+            ).map((clip) => (
+              <a
+                key={clip.key}
+                href={clip.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 w-40 max-md:w-[140px] bg-bg2 rounded-[12px] overflow-hidden hover:-translate-y-0.5 transition-transform"
               >
-                <div className="w-full aspect-square bg-gradient-to-br from-[#222] to-[#444] relative">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 rounded-full flex items-center justify-center text-white text-[14px]">
-                    ▶
+                {clip.thumbnail ? (
+                  <img
+                    src={clip.thumbnail}
+                    alt={clip.title}
+                    className="w-full aspect-square object-cover"
+                  />
+                ) : (
+                  <div className="w-full aspect-square bg-gradient-to-br from-[#222] to-[#444] flex items-center justify-center">
+                    <span className="text-[24px] text-t3">
+                      {clip.platform === "YouTube" ? "▶" : clip.platform === "TikTok" ? "♪" : "📸"}
+                    </span>
                   </div>
-                </div>
+                )}
                 <div className="p-2 px-2.5">
-                  <p className="text-[10px] font-semibold text-t3 mb-0.5">{clip.platform}</p>
+                  <p className="text-[10px] font-semibold text-t3 mb-0.5">{clip.platform} · {clip.handle}</p>
                   <p className="text-[12px] font-semibold text-t1 leading-[1.3] line-clamp-2">{clip.title}</p>
-                  <p className="text-[10px] text-t4 mt-0.5">{clip.meta}</p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </section>
@@ -319,7 +359,7 @@ export function HomeClient({
                 <img
                   src={d.imageUrl}
                   alt={d.name}
-                  className="w-8 h-8 rounded-full object-cover shrink-0 bg-bg2"
+                  className="w-8 h-8 rounded-full object-cover object-top shrink-0 bg-bg2"
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-semibold text-t1 mb-px">{d.name}</p>
@@ -348,9 +388,9 @@ export function HomeClient({
                   style={{ background: teamColors[c.teamId] }}
                 />
                 <img
-                  src={c.logoUrl}
+                  src={c.logoUrl ?? ""}
                   alt={c.name}
-                  className="w-8 h-8 rounded-[6px] object-contain shrink-0 bg-bg2 p-0.5"
+                  className="w-8 h-8 rounded-full shrink-0 object-contain bg-white p-1.5"
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-semibold text-t1">{c.name}</p>

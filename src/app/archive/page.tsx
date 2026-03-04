@@ -4,8 +4,17 @@ import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { TabBar } from "@/components/layout/TabBar";
 import { Footer } from "@/components/layout/Footer";
+import {
+  ALL_TIME_RECORDS,
+  DRIVER_CHAMPIONS,
+  CONSTRUCTOR_CHAMPIONS,
+  CHAMPION_IMAGES,
+  CONSTRUCTOR_IMAGES,
+  CONSTRUCTOR_LOGOS,
+} from "@/data/f1-legends";
 
-type GuideTab = "intro" | "dict";
+type ArchiveTab = "records" | "intro" | "dict";
+type LegendSub = "alltime" | "drivers" | "constructors";
 type DictCat = "all" | "기술" | "전략" | "규정" | "일반" | "2026";
 
 /* ===== Guide cards data ===== */
@@ -103,8 +112,9 @@ const DICT_ITEMS: { term: string; cat: DictCat; body: string }[] = [
   { term: "50:50 파워 스플릿", cat: "2026", body: "2026 신규. 내연기관(ICE)과 전기 모터(MGU-K)의 출력 비율이 각각 50%로 설계된 파워유닛 구조입니다." },
 ];
 
-export default function GuidePage() {
-  const [guideTab, setGuideTab] = useState<GuideTab>("intro");
+export default function ArchivePage() {
+  const [archiveTab, setArchiveTab] = useState<ArchiveTab>("records");
+  const [legendSub, setLegendSub] = useState<LegendSub>("alltime");
   const [openCards, setOpenCards] = useState<Set<number>>(new Set());
   const [openDicts, setOpenDicts] = useState<Set<number>>(new Set());
   const [dictSearch, setDictSearch] = useState("");
@@ -139,25 +149,299 @@ export default function GuidePage() {
       <Navbar />
 
       <main className="mx-auto max-w-[960px] px-5 max-md:px-3.5 pt-5 max-md:pt-3.5 pb-20 md:pb-5 flex flex-col gap-3 max-md:gap-2.5">
+        {/* Page Title */}
+        <div className="px-0.5 pt-1">
+          <h1 className="text-[24px] font-black text-t1">아카이브</h1>
+          <p className="text-[13px] text-t3 mt-0.5">역대 기록, 입문 가이드, 용어 사전</p>
+        </div>
+
         {/* Tab Buttons */}
         <div className="bg-card rounded-[16px] max-md:rounded-[14px] py-3 px-4">
           <div className="flex flex-wrap gap-2">
-            {(["intro", "dict"] as const).map((tab) => (
+            {(["records", "intro", "dict"] as const).map((tab) => (
               <button
                 key={tab}
-                onClick={() => { setGuideTab(tab); setOpenCards(new Set()); setOpenDicts(new Set()); }}
+                onClick={() => {
+                  setArchiveTab(tab);
+                  setOpenCards(new Set());
+                  setOpenDicts(new Set());
+                }}
                 className={`px-[18px] py-2 rounded-full text-[13px] font-semibold transition-colors ${
-                  guideTab === tab ? "bg-t1 text-bg2" : "bg-card text-t3 hover:text-t1"
+                  archiveTab === tab ? "bg-t1 text-bg2" : "bg-card text-t3 hover:text-t1"
                 }`}
               >
-                {tab === "intro" ? "입문 가이드" : "용어 사전"}
+                {tab === "records" ? "역대 기록" : tab === "intro" ? "입문 가이드" : "용어 사전"}
               </button>
             ))}
           </div>
         </div>
 
+        {/* ===== TAB: 역대 기록 ===== */}
+        {archiveTab === "records" && (
+          <div className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
+            <div className="mb-4">
+              <h1 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">F1 역대 기록</h1>
+              <p className="text-[12px] text-t4 mt-0.5">1950년부터 이어온 역사</p>
+            </div>
+
+            {/* Legend Sub-tabs */}
+            <div className="flex gap-1 bg-bg2 rounded-[10px] p-[3px] mb-4">
+              {(["alltime", "drivers", "constructors"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setLegendSub(tab)}
+                  className={`flex-1 text-center text-[13px] font-semibold py-2 px-3 rounded-[8px] transition-colors ${
+                    legendSub === tab ? "bg-t1 text-card" : "text-t3"
+                  }`}
+                >
+                  {tab === "alltime" ? "올타임 기록" : tab === "drivers" ? "드라이버" : "컨스트럭터"}
+                </button>
+              ))}
+            </div>
+
+            {/* All-Time Records — Bento Grid */}
+            {legendSub === "alltime" && (
+              <div className="grid grid-cols-4 max-md:grid-cols-2 gap-2.5 auto-rows-auto">
+                {ALL_TIME_RECORDS.map((rec) => {
+                  const isLg = rec.size === "lg";
+                  const isMd = rec.size === "md";
+                  const span = isLg
+                    ? "col-span-2 row-span-2 max-md:col-span-2 max-md:row-span-1"
+                    : isMd
+                      ? "col-span-2 max-md:col-span-2"
+                      : "col-span-1 max-md:col-span-1";
+
+                  return (
+                    <div
+                      key={rec.label}
+                      className={`relative overflow-hidden rounded-[14px] bg-bg2 ${span} ${
+                        isLg ? "p-5 max-md:p-4" : "p-4 max-md:p-3.5"
+                      }`}
+                    >
+                      {rec.accent && (
+                        <div
+                          className="absolute inset-0 opacity-10 pointer-events-none"
+                          style={{ backgroundColor: rec.accent }}
+                        />
+                      )}
+                      {rec.accent && (
+                        <div
+                          className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-3xl opacity-20 pointer-events-none"
+                          style={{ backgroundColor: rec.accent }}
+                        />
+                      )}
+
+                      <p
+                        className="relative text-[11px] font-bold uppercase tracking-wide mb-2"
+                        style={{ color: rec.accent ?? "var(--color-f1-red)" }}
+                      >
+                        {rec.label}
+                      </p>
+                      <p
+                        className={`relative font-display font-extrabold text-t1 mb-1.5 ${
+                          isLg
+                            ? "text-[36px] max-md:text-[28px] leading-none"
+                            : isMd
+                              ? "text-[28px] max-md:text-[22px] leading-none"
+                              : "text-[22px] max-md:text-[18px] leading-tight"
+                        }`}
+                      >
+                        {rec.value}
+                      </p>
+                      <p
+                        className={`relative font-semibold text-t2 ${
+                          isLg ? "text-[14px]" : "text-[12px]"
+                        }`}
+                      >
+                        {rec.holder}
+                      </p>
+                      <p
+                        className={`relative text-t4 mt-0.5 ${
+                          isLg ? "text-[12px]" : "text-[10px]"
+                        }`}
+                      >
+                        {rec.period}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Driver Champions */}
+            {legendSub === "drivers" && (
+              <div>
+                {/* Top 3 Podium — 2nd, 1st, 3rd */}
+                <div className="grid grid-cols-3 gap-2.5 mb-4 items-end">
+                  {[DRIVER_CHAMPIONS[1], DRIVER_CHAMPIONS[0], DRIVER_CHAMPIONS[2]].filter(Boolean).map((c) => {
+                    const img = CHAMPION_IMAGES[c.driver];
+                    const isFirst = c === DRIVER_CHAMPIONS[0];
+                    const podiumColors: Record<number, string> = { 0: "#E10600", 1: "#888", 2: "#F5A623" };
+                    const idx = DRIVER_CHAMPIONS.indexOf(c);
+                    const accent = podiumColors[idx] ?? "#888";
+                    return (
+                      <div
+                        key={c.year}
+                        className={`relative overflow-hidden rounded-[14px] ${
+                          isFirst ? "aspect-[3/4.2] max-md:aspect-[3/4.5]" : "aspect-[3/3.8] max-md:aspect-[3/4]"
+                        }`}
+                        style={{ backgroundColor: accent }}
+                      >
+                        {/* Driver image — full bleed */}
+                        {img && (
+                          <div
+                            className="absolute inset-0 bg-cover bg-top"
+                            style={{ backgroundImage: `url('${img}')` }}
+                          />
+                        )}
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+                        {/* Bottom info */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 max-md:p-2.5">
+                          <span className="font-display font-black leading-none text-white/90 drop-shadow-lg text-[40px] max-md:text-[32px]">
+                            {c.year}
+                          </span>
+                          <p className="font-bold text-white truncate mt-1 text-[16px] max-md:text-[13px]">
+                            {c.driver}
+                          </p>
+                          <p className="text-[10px] max-md:text-[9px] text-white/60 mt-0.5">{c.team}</p>
+                          <div className="flex gap-2 mt-1.5">
+                            <span className="font-display font-extrabold text-white text-[16px] max-md:text-[14px]">
+                              {c.wins}승
+                            </span>
+                            <span className="font-display text-[11px] max-md:text-[10px] font-semibold text-white/50 self-end mb-0.5">
+                              {c.points}pt
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Rest — with small avatar */}
+                {DRIVER_CHAMPIONS.slice(3).map((c) => {
+                  const img = CHAMPION_IMAGES[c.driver];
+                  return (
+                    <div
+                      key={c.year}
+                      className="flex items-center gap-3 py-3 border-b border-bdr last:border-b-0"
+                    >
+                      <span className="font-display text-[14px] max-md:text-[13px] font-extrabold text-t4 w-10 shrink-0">
+                        {c.year}
+                      </span>
+                      <div
+                        className="w-8 h-8 max-md:w-7 max-md:h-7 rounded-full shrink-0 bg-cover bg-top bg-bg2 flex items-center justify-center text-[11px] max-md:text-[10px] font-bold text-t3 font-display"
+                        style={img ? { backgroundImage: `url('${img}')` } : undefined}
+                      >
+                        {!img && c.driver.split(" ").map((w) => w[0]).join("")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] max-md:text-[13px] font-semibold text-t1 truncate">
+                          {c.driver}
+                        </p>
+                        <p className="text-[12px] text-t3 mt-0.5">{c.team}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="font-display text-[13px] font-bold text-t2">
+                          {c.wins}승
+                        </p>
+                        <p className="font-display text-[11px] text-t4">
+                          {c.points}pt
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Constructor Champions */}
+            {legendSub === "constructors" && (
+              <div>
+                {/* Top 3 Podium — 2nd, 1st, 3rd */}
+                <div className="grid grid-cols-3 gap-2.5 mb-4 items-end">
+                  {[CONSTRUCTOR_CHAMPIONS[1], CONSTRUCTOR_CHAMPIONS[0], CONSTRUCTOR_CHAMPIONS[2]].filter(Boolean).map((c) => {
+                    const img = CONSTRUCTOR_IMAGES[c.team];
+                    const isFirst = c === CONSTRUCTOR_CHAMPIONS[0];
+                    const podiumColors: Record<number, string> = { 0: "#E10600", 1: "#888", 2: "#F5A623" };
+                    const idx = CONSTRUCTOR_CHAMPIONS.indexOf(c);
+                    const accent = podiumColors[idx] ?? "#888";
+                    return (
+                      <div
+                        key={c.year}
+                        className={`relative overflow-hidden rounded-[14px] ${
+                          isFirst ? "aspect-[3/4.2] max-md:aspect-[3/4.5]" : "aspect-[3/3.8] max-md:aspect-[3/4]"
+                        }`}
+                        style={{ backgroundColor: accent }}
+                      >
+                        {/* Car image — full bleed */}
+                        {img && (
+                          <div
+                            className="absolute inset-0 bg-cover bg-center"
+                            style={{ backgroundImage: `url('${img}')` }}
+                          />
+                        )}
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+                        {/* Bottom info */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 max-md:p-2.5">
+                          <span className="font-display font-black leading-none text-white/90 drop-shadow-lg text-[40px] max-md:text-[32px]">
+                            {c.year}
+                          </span>
+                          {CONSTRUCTOR_LOGOS[c.team] && (
+                            <img
+                              src={CONSTRUCTOR_LOGOS[c.team]}
+                              alt=""
+                              className="h-8 max-md:h-6 mt-2 mb-1 drop-shadow-lg"
+                            />
+                          )}
+                          <p className="font-bold text-white truncate text-[16px] max-md:text-[13px]">
+                            {c.team}
+                          </p>
+                          <div className="flex gap-2 mt-1.5">
+                            <span className="font-display font-extrabold text-white text-[16px] max-md:text-[14px]">
+                              {c.wins}승
+                            </span>
+                            <span className="font-display text-[11px] max-md:text-[10px] font-semibold text-white/50 self-end mb-0.5">
+                              {c.points}pt
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Rest */}
+                {CONSTRUCTOR_CHAMPIONS.slice(3).map((c) => (
+                  <div
+                    key={c.year}
+                    className="flex items-center gap-3 py-3 border-b border-bdr last:border-b-0"
+                  >
+                    <span className="font-display text-[14px] max-md:text-[13px] font-extrabold text-t4 w-10 shrink-0">
+                      {c.year}
+                    </span>
+                    <p className="flex-1 text-[14px] max-md:text-[13px] font-semibold text-t1 min-w-0 truncate">
+                      {c.team}
+                    </p>
+                    <div className="text-right shrink-0">
+                      <p className="font-display text-[13px] font-bold text-t2">
+                        {c.wins}승
+                      </p>
+                      <p className="font-display text-[11px] text-t4">
+                        {c.points}pt
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ===== TAB: 입문 가이드 ===== */}
-        {guideTab === "intro" && (
+        {archiveTab === "intro" && (
           <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
             <div className="mb-4">
               <h1 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">F1 입문 가이드</h1>
@@ -236,7 +520,7 @@ export default function GuidePage() {
         )}
 
         {/* ===== TAB: 용어 사전 ===== */}
-        {guideTab === "dict" && (
+        {archiveTab === "dict" && (
           <section className="bg-card rounded-[16px] max-md:rounded-[14px] p-5 max-md:p-4">
             <div className="mb-4">
               <h1 className="text-[18px] max-md:text-[17px] font-extrabold text-t1">F1 용어 사전</h1>

@@ -1,7 +1,8 @@
-import { getArticles, getArticlesByKeywords, type Article } from "@/lib/notion";
+import { Suspense } from "react";
+import { getArticles, getArticlesByKeywords, getSnsClips, type Article } from "@/lib/notion";
 import { getNextRace } from "@/data/f1-2026";
 import { RACE_KEYWORDS } from "@/data/race-keywords";
-import { NewsPageClient, type NewsItem } from "./NewsPageClient";
+import { NewsPageClient, type NewsItem, type TechArticle } from "./NewsPageClient";
 
 /* ── Dummy fallback data (used when Notion is not configured) ── */
 const DUMMY_FEATURED = {
@@ -15,12 +16,7 @@ const DUMMY_FEATURED = {
   thumbnail: "",
 };
 
-const DUMMY_EDITOR_PICKS = [
-  { slug: "active-aero-explained", cat: "기술 해설", title: "액티브 에어로 작동 원리", meta: "3시간 전 · Motorsport.com", thumbnail: "" },
-  { slug: "hamilton-ferrari-photo", cat: "드라이버 & 팀", title: "페라리, 해밀턴 합류 첫 사진", meta: "5시간 전 · Formula1.com", thumbnail: "" },
-  { slug: "pu-regulation-electric", cat: "기술 해설", title: "PU 규정: 전기 출력 2배", meta: "12시간 전 · Autosport", thumbnail: "" },
-  { slug: "2026-driver-lineup", cat: "카드뉴스", title: "2026 팀별 드라이버 라인업", meta: "1일 전 · SHONZ GRID", thumbnail: "" },
-];
+const DUMMY_TECH: TechArticle[] = [];
 
 const DUMMY_NEWS: NewsItem[] = [
   { slug: "australia-gp-preview", cat: "race", catLabel: "레이스 위켄드", title: "호주 GP 프리뷰: 알버트 파크 서킷", desc: "시즌 개막전 멜버른 서킷 분석", time: "8시간 전", source: "Formula1.com", thumbnail: "" },
@@ -54,29 +50,40 @@ function articleToNewsItem(a: Article): NewsItem {
 export const revalidate = 300;
 
 export default async function NewsPage() {
-  const articles = await getArticles();
-
-  // Fetch GP articles
   const nextRace = getNextRace();
   const raceKeywords = RACE_KEYWORDS[nextRace.round] ?? [];
-  const gpArticlesRaw = await getArticlesByKeywords(raceKeywords, 4);
-  const gpArticles = gpArticlesRaw.map((a) => ({
-    slug: a.slug,
-    title: a.title,
-    source: a.source,
-    date: a.date,
-    thumbnail: a.thumbnail,
-  }));
+
+  const [articles, techArticles, gpArticlesRaw, snsClipsRaw] = await Promise.all([
+    getArticles(),
+    getArticles("기술 해설", 3),
+    getArticlesByKeywords(raceKeywords, 4),
+    getSnsClips(10),
+  ]);
 
   const gpData = {
     flag: nextRace.flag,
     gp: nextRace.gp,
     fullDate: nextRace.fullDate,
-    articles: gpArticles,
+    articles: gpArticlesRaw.map((a) => ({
+      slug: a.slug,
+      title: a.title,
+      source: a.source,
+      date: a.date,
+      thumbnail: a.thumbnail,
+    })),
   };
 
+  // Tech articles — exclude featured to avoid duplication
+  const featuredSlug = articles[1]?.slug;
+  const techFiltered = techArticles.filter((a) => a.slug !== featuredSlug);
+  const techFeatured = techFiltered[0]
+    ? { slug: techFiltered[0].slug, title: techFiltered[0].title, description: techFiltered[0].description, thumbnail: techFiltered[0].thumbnail }
+    : null;
+  const techMore = techFiltered.slice(1, 3).map((a) => ({
+    slug: a.slug, title: a.title, description: a.description, thumbnail: a.thumbnail,
+  }));
+
   if (articles.length > 1) {
-    // Use second article as featured (home page uses the first)
     const featured = {
       slug: articles[1].slug,
       category: articles[1].category,
@@ -86,31 +93,32 @@ export default async function NewsPage() {
       time: articles[1].date,
       thumbnail: articles[1].thumbnail,
     };
-    const editorPicks = articles.slice(2, 6).map((a) => ({
-      slug: a.slug,
-      cat: a.category,
-      title: a.title,
-      meta: `${a.date} · ${a.source}`,
-      thumbnail: a.thumbnail,
-    }));
     const newsItems = [articles[0], ...articles.slice(2)].map(articleToNewsItem);
 
     return (
-      <NewsPageClient
-        featured={featured}
-        editorPicks={editorPicks}
-        newsItems={newsItems}
-        gpData={gpData}
-      />
+      <Suspense>
+        <NewsPageClient
+          featured={featured}
+          techFeatured={techFeatured}
+          techMore={techMore}
+          newsItems={newsItems}
+          gpData={gpData}
+          snsClips={snsClipsRaw}
+        />
+      </Suspense>
     );
   }
 
   return (
-    <NewsPageClient
-      featured={DUMMY_FEATURED}
-      editorPicks={DUMMY_EDITOR_PICKS}
-      newsItems={DUMMY_NEWS}
-      gpData={gpData}
-    />
+    <Suspense>
+      <NewsPageClient
+        featured={DUMMY_FEATURED}
+        techFeatured={null}
+        techMore={DUMMY_TECH}
+        newsItems={DUMMY_NEWS}
+        gpData={gpData}
+        snsClips={snsClipsRaw}
+      />
+    </Suspense>
   );
 }

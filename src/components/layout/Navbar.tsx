@@ -44,7 +44,7 @@ export function Navbar() {
             );
           })}
           <a
-            href="https://instagram.com/ahonz_mag"
+            href="https://www.instagram.com/shonz_mag"
             target="_blank"
             rel="noopener noreferrer"
             className="text-t3 hover:text-t1 transition-colors"
@@ -60,7 +60,7 @@ export function Navbar() {
 
         {/* Mobile Instagram icon */}
         <a
-          href="https://instagram.com/ahonz_mag"
+          href="https://www.instagram.com/shonz_mag"
           target="_blank"
           rel="noopener noreferrer"
           className="md:hidden text-t3 hover:text-t1 transition-colors"
